@@ -1,0 +1,29 @@
+# Node / React
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Java / Spring Boot
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE/editor
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
