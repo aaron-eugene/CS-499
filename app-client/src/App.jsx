@@ -1,122 +1,126 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { getTrips } from './api/tripApi';
+import TripList from './components/TripList';
+import './App.css';
 
+/**
+ * Main application component for the enhanced Travlr client.
+ *
+ * This component retrieves trip data from the Spring Boot API and displays
+ * loading, error, empty, and successful data states.
+ *
+ * @returns {JSX.Element} rendered application
+ */
 function App() {
-  const [count, setCount] = useState(0)
+  const [trips, setTrips] = useState([]);
+  const [sort, setSort] = useState('name');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+
+    async function loadTrips() {
+      try {
+        setIsLoading(true);
+        setErrorMessage('');
+
+        const tripData = await getTrips({ sort, maxPrice });
+
+        if (isCurrentRequest) {
+          setTrips(tripData);
+        }
+      } catch (error) {
+        if (isCurrentRequest) {
+          setErrorMessage(error.message);
+          setTrips([]);
+        }
+      } finally {
+        if (isCurrentRequest) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadTrips();
+
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [sort, maxPrice]);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <main className="app-shell">
+      <header className="site-header">
+        <div className="site-header__inner">
+          <img
+            className="site-logo"
+            src="/images/logo.png"
+            alt="Travlr Getaways"
+          />
+
+          <nav className="site-nav" aria-label="Primary navigation">
+            <button type="button">Home</button>
+            <button
+              type="button"
+              className="site-nav__active"
+              aria-current="page"
+            >
+              Travel
+            </button>
+            <button type="button">Rooms</button>
+            <button type="button">Meals</button>
+            <button type="button">News</button>
+            <button type="button">About</button>
+            <button type="button">Contact</button>
+          </nav>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+      </header>
+
+      <section className="page-intro">
+        <h1>Explore Available Trips</h1>
+        <p>
+          This React client retrieves typed trip data from the enhanced Spring Boot
+          API and displays it through reusable components.
+        </p>
       </section>
 
-      <div className="ticks"></div>
+      <section className="trip-controls" aria-label="Trip filters">
+        <label>
+          Sort by
+          <select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <option value="name">Name</option>
+            <option value="price">Price</option>
+            <option value="startDate">Start date</option>
+            <option value="duration">Duration</option>
+          </select>
+        </label>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+        <label>
+          Max price
+          <input
+            type="number"
+            min="0"
+            step="50"
+            value={maxPrice}
+            placeholder="No limit"
+            onChange={(event) => setMaxPrice(event.target.value)}
+          />
+        </label>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {isLoading && <p className="status-message">Loading trips...</p>}
+
+      {errorMessage && (
+        <p className="status-message status-message--error">
+          {errorMessage}
+        </p>
+      )}
+
+      {!isLoading && !errorMessage && <TripList trips={trips} />}
+    </main>
+  );
 }
 
-export default App
+export default App;

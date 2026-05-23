@@ -1,15 +1,19 @@
 # Node / React
 node_modules/
+app-client/node_modules/
 dist/
+app-client/dist/
 build/
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+coverage/
 
-# Java / Spring Boot
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Java / Spring Boot / Maven
 target/
+app-api/target/
 .mvn/wrapper/maven-wrapper.jar
 
 # IDE/editor
