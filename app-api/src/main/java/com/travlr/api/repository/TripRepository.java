@@ -8,9 +8,9 @@ import java.util.Optional;
 /**
  * Defines persistence operations for trip records.
  *
- * This interface separates application logic from the storage mechanism so the
- * current in-memory implementation can later be replaced with PostgreSQL-backed
- * persistence.
+ * This interface separates application logic from the storage mechanism so that
+ * the milestone 2 in-memory implementation can later be replaced with 
+ * PostgreSQL-backed persistence.
  */
 public interface TripRepository {
 	/**

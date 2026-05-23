@@ -42,7 +42,7 @@ public class TripController {
 	 */
 	@GetMapping("/{code}")
 	public ResponseEntity<Trip> getTrip(@PathVariable String code) {
-		return tripService.getTripByCode(code)
+		return tripService.getTrip(code)
 				.map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
 	}

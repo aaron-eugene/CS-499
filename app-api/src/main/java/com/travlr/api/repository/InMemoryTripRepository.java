@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Temporary in-memory trip repository used for the milestone implementation.
+ * Temporary in-memory trip repository used for the milestone 2 implementation.
  *
  * This class provides seed trip data while preserving the repository boundary
  * that will later be implemented with PostgreSQL.
@@ -49,7 +49,7 @@ public class InMemoryTripRepository implements TripRepository {
 
 	@Override
 	public List<Trip> findAll() {
-		return trips;
+		return List.copyOf(trips);
 	}
 
 	@Override
