@@ -9,6 +9,10 @@ import java.time.LocalDate;
  * This enhanced model replaces display-oriented string fields from the
  * original MEAN implementation with typed fields that support filtering,
  * sorting, validation, and future PostgreSQL mapping.
+ *
+ * This class currently acts as the API model for the milestone implementation.
+ * As the database layer is added, persistence-specific concerns can be
+ * added through JPA annotations or moved into a dedicated entity class.
  */
 public class Trip {
 	private String code;
@@ -17,7 +21,7 @@ public class Trip {
 	private LocalDate startDate;
 	private String resort;
 	private BigDecimal pricePerPerson;
-	private String image;
+	private String imageName;
 	private String description;
 
 	/**
@@ -29,18 +33,18 @@ public class Trip {
 	 * @param startDate starting date of the trip
 	 * @param resort resort name
 	 * @param pricePerPerson price per person
-	 * @param image image filename
-	 * @param description trip description
+	 * @param imageName controlled image filename used by the frontend
+	 * @param description plain-text trip description for display
 	 */
 	public Trip(String code, String name, int durationDays, LocalDate startDate, String resort,
-			BigDecimal pricePerPerson, String image, String description) {
+			BigDecimal pricePerPerson, String imageName, String description) {
 		this.code = code;
 		this.name = name;
 		this.durationDays = durationDays;
 		this.startDate = startDate;
 		this.resort = resort;
 		this.pricePerPerson = pricePerPerson;
-		this.image = image;
+		this.imageName = imageName;
 		this.description = description;
 	}
 
@@ -68,8 +72,8 @@ public class Trip {
 		return pricePerPerson;
 	}
 
-	public String getImage() {
-		return image;
+	public String getImageName() {
+		return imageName;
 	}
 
 	public String getDescription() {
