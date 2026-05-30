@@ -1,5 +1,7 @@
 package com.travlr.api.controller;
 
+import com.travlr.api.dto.TripSearchCriteria;
+import com.travlr.api.dto.TripSummary;
 import com.travlr.api.model.Trip;
 import com.travlr.api.service.TripService;
 
@@ -7,18 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * Handles REST API requests for trip resources.
  *
- * This controller exposes read-only trip endpoints for the Milestone Two
- * implementation. Future create, update, and delete endpoints should be
- * protected with admin authorization before they are exposed.
+ * This controller exposes read-only trip endpoints for the current milestone
+ * implementation. The trip collection endpoint accepts query criteria for
+ * searching, filtering, sorting, and pagination. Future create, update, and
+ * delete endpoints should be protected with admin authorization before they are
+ * exposed.
  */
 @RestController
 @RequestMapping("/api/trips")
@@ -35,6 +37,16 @@ public class TripController {
 	}
 
 	/**
+	 * Retrieves computed summary metadata for the trip catalog.
+	 *
+	 * @return trip catalog summary
+	 */
+	@GetMapping("/summary")
+	public TripSummary getTripSummary() {
+		return tripService.getTripSummary();
+	}
+
+	/**
 	 * Retrieves one trip by its stable public trip code.
 	 *
 	 * @param code unique trip code
@@ -48,16 +60,18 @@ public class TripController {
 	}
 
 	/**
-	 * Retrieves available trips using optional filtering and an approved sort field.
+	 * Retrieves available trips using optional search, filter, sort, and pagination
+	 * criteria.
 	 *
-	 * @param maxPrice optional maximum price per person
-	 * @param sort optional sort field: name, price, startDate, or duration
-	 * @return list of available trips
+	 * Spring binds matching query parameters into the TripSearchCriteria object.
+	 * Supported parameters include search, minPrice, maxPrice, minDays, maxDays,
+	 * sort, direction, page, and size.
+	 *
+	 * @param criteria query criteria supplied by the request
+	 * @return list of matching trips
 	 */
 	@GetMapping
-	public List<Trip> getTrips(
-			@RequestParam(required = false) BigDecimal maxPrice,
-			@RequestParam(required = false) String sort) {
-		return tripService.getTrips(maxPrice, sort);
+	public List<Trip> getTrips(TripSearchCriteria criteria) {
+		return tripService.getTrips(criteria);
 	}
 }

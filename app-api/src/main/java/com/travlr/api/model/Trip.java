@@ -15,26 +15,26 @@ import java.time.LocalDate;
  * added through JPA annotations or moved into a dedicated entity class.
  */
 public class Trip {
-	private String code;
-	private String name;
-	private int durationDays;
-	private LocalDate startDate;
-	private String resort;
-	private BigDecimal pricePerPerson;
-	private String imageName;
-	private String description;
+	private final String code;
+	private final String name;
+	private final int durationDays;
+	private final LocalDate startDate;
+	private final String resort;
+	private final BigDecimal pricePerPerson;
+	private final String imageName;
+	private final String description;
 
 	/**
 	 * Creates a trip record with typed fields for application and API use.
 	 *
-	 * @param code unique trip code used as a stable public identifier
-	 * @param name display name of the trip
-	 * @param durationDays duration of the trip in days
-	 * @param startDate starting date of the trip
-	 * @param resort resort name
+	 * @param code           unique trip code used as a stable public identifier
+	 * @param name           display name of the trip
+	 * @param durationDays   duration of the trip in days
+	 * @param startDate      starting date of the trip
+	 * @param resort         resort name
 	 * @param pricePerPerson price per person
-	 * @param imageName controlled image filename used by the frontend
-	 * @param description plain-text trip description for display
+	 * @param imageName      controlled image filename used by the frontend
+	 * @param description    plain-text trip description for display
 	 */
 	public Trip(String code, String name, int durationDays, LocalDate startDate, String resort,
 			BigDecimal pricePerPerson, String imageName, String description) {
