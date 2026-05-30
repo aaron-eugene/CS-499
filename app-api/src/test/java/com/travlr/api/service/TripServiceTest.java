@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,7 +157,7 @@ class TripServiceTest {
 					+ trip.getName() + " "
 					+ trip.getResort() + " "
 					+ trip.getDescription())
-					.toLowerCase();
+					.toLowerCase(Locale.ROOT);
 
 			assertTrue(combinedSearchText.contains(search));
 		}
@@ -227,12 +228,22 @@ class TripServiceTest {
 	 */
 	@Test
 	void getTripFindsTripByCodeCaseInsensitively() {
-		String existingCode = testTrips.get(0).getCode().toLowerCase();
+		String existingCode = testTrips.get(0).getCode().toLowerCase(Locale.ROOT);
 
 		Optional<Trip> trip = tripService.getTrip(existingCode);
 
 		assertTrue(trip.isPresent());
 		assertEquals(testTrips.get(0).getCode(), trip.get().getCode());
+	}
+
+	/**
+	 * Verifies that an unknown trip code returns an empty result.
+	 */
+	@Test
+	void getTripReturnsEmptyForUnknownCode() {
+		Optional<Trip> trip = tripService.getTrip("UNKNOWN999");
+
+		assertTrue(trip.isEmpty());
 	}
 
 	/**
@@ -249,6 +260,12 @@ class TripServiceTest {
 		assertEquals(findLongestDuration(testTrips), summary.getMaxDurationDays());
 	}
 
+	/**
+	 * Finds the lowest price in the controlled test data.
+	 *
+	 * @param trips trips to inspect
+	 * @return lowest price per person
+	 */
 	private BigDecimal findLowestPrice(List<Trip> trips) {
 		return trips.stream()
 				.map(Trip::getPricePerPerson)
@@ -256,6 +273,12 @@ class TripServiceTest {
 				.orElseThrow();
 	}
 
+	/**
+	 * Finds the highest price in the controlled test data.
+	 *
+	 * @param trips trips to inspect
+	 * @return highest price per person
+	 */
 	private BigDecimal findHighestPrice(List<Trip> trips) {
 		return trips.stream()
 				.map(Trip::getPricePerPerson)
@@ -263,6 +286,12 @@ class TripServiceTest {
 				.orElseThrow();
 	}
 
+	/**
+	 * Finds the shortest trip duration in the controlled test data.
+	 *
+	 * @param trips trips to inspect
+	 * @return shortest trip duration in days
+	 */
 	private int findShortestDuration(List<Trip> trips) {
 		return trips.stream()
 				.mapToInt(Trip::getDurationDays)
@@ -270,6 +299,12 @@ class TripServiceTest {
 				.orElseThrow();
 	}
 
+	/**
+	 * Finds the longest trip duration in the controlled test data.
+	 *
+	 * @param trips trips to inspect
+	 * @return longest trip duration in days
+	 */
 	private int findLongestDuration(List<Trip> trips) {
 		return trips.stream()
 				.mapToInt(Trip::getDurationDays)
@@ -283,6 +318,11 @@ class TripServiceTest {
 	private static class TestTripRepository implements TripRepository {
 		private final List<Trip> trips;
 
+		/**
+		 * Creates a test repository backed by controlled trip data.
+		 *
+		 * @param trips trips exposed to the service under test
+		 */
 		TestTripRepository(List<Trip> trips) {
 			this.trips = trips;
 		}

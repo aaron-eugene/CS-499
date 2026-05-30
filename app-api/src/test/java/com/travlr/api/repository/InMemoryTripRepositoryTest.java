@@ -6,12 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests the temporary in-memory trip repository used by the current milestone
+ * Tests the current in-memory trip repository used by the milestone
  * implementation.
  *
  * These tests verify that the repository exposes application trip data and that
@@ -49,14 +50,25 @@ class InMemoryTripRepositoryTest {
 		assertFalse(trips.isEmpty());
 
 		Trip expectedTrip = trips.get(0);
-		Optional<Trip> result = tripRepository.findByCode(expectedTrip.getCode().toLowerCase());
+		Optional<Trip> result = tripRepository.findByCode(
+				expectedTrip.getCode().toLowerCase(Locale.ROOT));
 
 		assertTrue(result.isPresent());
 		assertEquals(expectedTrip.getCode(), result.get().getCode());
 	}
 
 	/**
-	 * Verifies that missing or blank trip codes do not return a trip.
+	 * Verifies that an unknown trip code does not return a trip.
+	 */
+	@Test
+	void findByCodeReturnsEmptyForUnknownCode() {
+		Optional<Trip> result = tripRepository.findByCode("UNKNOWN999");
+
+		assertTrue(result.isEmpty());
+	}
+
+	/**
+	 * Verifies that blank trip codes do not return a trip.
 	 */
 	@Test
 	void findByCodeReturnsEmptyForBlankCode() {
