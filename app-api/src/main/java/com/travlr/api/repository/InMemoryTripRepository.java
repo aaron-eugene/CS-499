@@ -7,23 +7,24 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Temporary in-memory trip repository used for the current milestone
- * implementation.
+ * In-memory trip repository used for the current milestone implementation.
  *
  * This class provides seed trip data while preserving the repository boundary
  * that will later be implemented with PostgreSQL.
  *
  * The in-memory implementation stores trips in a list for ordered collection
  * operations and builds a lookup map keyed by trip code for efficient
- * single-record retrieval. This supports the algorithms and data structures
- * enhancement while keeping the future database transition isolated behind
- * the repository interface.
+ * single-record retrieval. The trip-code map also reinforces the expectation
+ * that trip codes are unique identifiers. This supports the algorithms and data
+ * structures enhancement while keeping the future database transition isolated
+ * behind the repository interface.
  */
 @Repository
 public class InMemoryTripRepository implements TripRepository {
@@ -117,6 +118,6 @@ public class InMemoryTripRepository implements TripRepository {
 	 * @return normalized trip code
 	 */
 	private String normalizeCode(String code) {
-		return code.trim().toUpperCase();
+		return code.trim().toUpperCase(Locale.ROOT);
 	}
 }

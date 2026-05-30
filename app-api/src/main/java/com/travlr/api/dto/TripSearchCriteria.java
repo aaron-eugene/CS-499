@@ -12,6 +12,10 @@ import java.math.BigDecimal;
  * criteria support price and duration range filtering, while sort,
  * direction, page, and size control result ordering and bounded pagination.
  *
+ * Validation for unsupported or missing query values is handled defensively in
+ * the service layer so optional search criteria can remain flexible for the
+ * current read-only API.
+ *
  * This DTO keeps HTTP query parameters out of the service method signature so
  * additional criteria can be added without creating a long parameter list.
  */

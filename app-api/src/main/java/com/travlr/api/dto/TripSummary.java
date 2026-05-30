@@ -32,7 +32,7 @@ public class TripSummary {
 	public TripSummary(int totalTrips, List<String> resorts, BigDecimal minPrice,
 			BigDecimal maxPrice, Integer minDurationDays, Integer maxDurationDays) {
 		this.totalTrips = totalTrips;
-		this.resorts = resorts;
+		this.resorts = resorts == null ? List.of() : List.copyOf(resorts);
 		this.minPrice = minPrice;
 		this.maxPrice = maxPrice;
 		this.minDurationDays = minDurationDays;

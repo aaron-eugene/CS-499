@@ -152,10 +152,21 @@ public class TripService {
 
 		String normalizedSearch = search.trim().toLowerCase(Locale.ROOT);
 
-		return trip.getCode().toLowerCase(Locale.ROOT).contains(normalizedSearch)
-				|| trip.getName().toLowerCase(Locale.ROOT).contains(normalizedSearch)
-				|| trip.getResort().toLowerCase(Locale.ROOT).contains(normalizedSearch)
-				|| trip.getDescription().toLowerCase(Locale.ROOT).contains(normalizedSearch);
+		return getSearchableText(trip).contains(normalizedSearch);
+	}
+
+	/**
+	 * Builds normalized text used for keyword search comparisons.
+	 *
+	 * @param trip trip to inspect
+	 * @return normalized searchable trip text
+	 */
+	private String getSearchableText(Trip trip) {
+		return (trip.getCode() + " "
+				+ trip.getName() + " "
+				+ trip.getResort() + " "
+				+ trip.getDescription())
+				.toLowerCase(Locale.ROOT);
 	}
 
 	/**
@@ -290,7 +301,7 @@ public class TripService {
 
 		int toIndex = Math.min(fromIndex + size, trips.size());
 
-		return trips.subList(fromIndex, toIndex);
+		return List.copyOf(trips.subList(fromIndex, toIndex));
 	}
 
 	/**

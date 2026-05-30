@@ -14,19 +14,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Represents client-provided trip data for create and update operations.
+ * Represents client-provided trip data for future write operations.
  *
  * This DTO separates incoming request data from the internal trip model so
  * validation can be applied at the API boundary before data reaches the
- * service or persistence layers.
+ * service or persistence layers. As create and update endpoints are added,
+ * separate request DTOs may be introduced so route identifiers remain separate
+ * from editable request body fields.
  */
 public class TripRequest {
 	@NotBlank(message = "Trip code is required.")
 	@Size(min = 14, max = 14, message = "Trip code must be exactly 14 characters.")
-	@Pattern(
-			regexp = "^[A-Z]{6}\\d{8}$",
-			message = "Trip code must use six uppercase letters followed by an eight-digit date."
-	)
+	@Pattern(regexp = "^[A-Z]{6}\\d{8}$", message = "Trip code must use six uppercase letters followed by an eight-digit date.")
 	private String code;
 
 	@NotBlank(message = "Trip name is required.")
@@ -53,10 +52,7 @@ public class TripRequest {
 
 	@NotBlank(message = "Image filename is required.")
 	@Size(max = 100, message = "Image filename must be 100 characters or fewer.")
-	@Pattern(
-			regexp = "^[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)$",
-			message = "Image filename must be a JPG, PNG, or WebP file using only letters, numbers, dashes, or underscores."
-	)
+	@Pattern(regexp = "^[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)$", message = "Image filename must be a JPG, PNG, or WebP file using only letters, numbers, dashes, or underscores.")
 	private String imageName;
 
 	@NotBlank(message = "Description is required.")

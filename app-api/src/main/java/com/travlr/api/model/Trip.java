@@ -10,9 +10,9 @@ import java.time.LocalDate;
  * original MEAN implementation with typed fields that support filtering,
  * sorting, validation, and future PostgreSQL mapping.
  *
- * This class currently acts as the API model for the milestone implementation.
- * As the database layer is added, persistence-specific concerns can be
- * added through JPA annotations or moved into a dedicated entity class.
+ * This class currently acts as the API/domain model for the milestone
+ * implementation. As the database layer is added, persistence-specific concerns
+ * can be added through JPA annotations or moved into a dedicated entity class.
  */
 public class Trip {
 	private final String code;

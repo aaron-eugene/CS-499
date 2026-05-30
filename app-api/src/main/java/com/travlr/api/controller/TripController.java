@@ -17,10 +17,10 @@ import java.util.List;
  * Handles REST API requests for trip resources.
  *
  * This controller exposes read-only trip endpoints for the current milestone
- * implementation. The trip collection endpoint accepts query criteria for
- * searching, filtering, sorting, and pagination. Future create, update, and
- * delete endpoints should be protected with admin authorization before they are
- * exposed.
+ * implementation. It accepts query criteria from API callers and delegates
+ * search, filter, sort, pagination, lookup, and summary behavior to the service
+ * layer. Future create, update, and delete endpoints should be protected with
+ * admin authorization before they are exposed.
  */
 @RestController
 @RequestMapping("/api/trips")
