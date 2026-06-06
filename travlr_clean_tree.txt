@@ -1,0 +1,252 @@
+##################################
+# CS-465 Mean-Stack Travlr Project
+##################################
+
+travlr/
+|   app.js
+|   package.json
+|   README.md
+|
++---app_api/
+|   +---config/
+|   |       passport.js
+|   |
+|   +---controllers/
+|   |       authentication.js
+|   |       trips.js
+|   |
+|   +---models/
+|   |       db.js
+|   |       seed.js
+|   |       travlr.js
+|   |       user.js
+|   |
+|   \---routes/
+|           index.js
+|
++---app_admin/                       # Angular admin application
+|   |   angular.json
+|   |   package.json
+|   |
+|   \---src/
+|       |   index.html
+|       |   main.ts
+|       |
+|       \---app/
+|           |   app.config.ts
+|           |   app.html
+|           |   app.routes.ts
+|           |   app.ts
+|           |   storage.ts
+|           |
+|           +---add-trip/
+|           |       add-trip.html
+|           |       add-trip.ts
+|           |
+|           +---edit-trip/
+|           |       edit-trip.html
+|           |       edit-trip.ts
+|           |
+|           +---login/
+|           |       login.html
+|           |       login.ts
+|           |
+|           +---models/
+|           |       auth-response.ts
+|           |       trip.ts
+|           |       user.ts
+|           |
+|           +---navbar/
+|           |       navbar.html
+|           |       navbar.ts
+|           |
+|           +---services/
+|           |       authentication.ts
+|           |       trip-data.ts
+|           |
+|           +---trip-card/
+|           |       trip-card.html
+|           |       trip-card.ts
+|           |
+|           +---trip-listing/
+|           |       trip-listing.html
+|           |       trip-listing.ts
+|           |
+|           \---utils/
+|                   jwt-interceptor.ts
+|
++---app_server/                      # Public server-rendered site
+|   +---controllers/
+|   |       about.js
+|   |       main.js
+|   |       travel.js
+|   |
+|   +---routes/
+|   |       about.js
+|   |       index.js
+|   |       travel.js
+|   |       users.js
+|   |
+|   \---views/
+|       |   about.hbs
+|       |   error.hbs
+|       |   index.hbs
+|       |   travel.hbs
+|       |
+|       +---layouts/
+|       |       layout.hbs
+|       |
+|       \---partials/
+|               footer.hbs
+|               header.hbs
+|
++---bin/
+|       www
+|
++---data/
+|       trips.json
+|
+\---public/                          # Static public site assets/pages
+    |   about.html
+    |   contact.html
+    |   index.html
+    |   meals.html
+    |   news.html
+    |   rooms.html
+    |   travel.html
+    |
+    +---css/
+    |       style.css
+    |
+    \---images/
+            [site images omitted]
+
+##################################
+# CS-499 New Travlr Project
+##################################
+
+C:.
+|   .gitignore
+|   README.md
+|   travlr_tree.txt
+|   
++---app-api
+|   |   .gitattributes
+|   |   .gitignore
+|   |   HELP.md
+|   |   mvnw
+|   |   mvnw.cmd
+|   |   pom.xml
+|   |   
+|   +---.mvn
+|   |   \---wrapper
+|   |           maven-wrapper.properties
+|   |           
+|   \---src
+|       +---main
+|       |   +---java
+|       |   |   \---com
+|       |   |       \---travlr
+|       |   |           \---api
+|       |   |               |   AppApiApplication.java
+|       |   |               |   
+|       |   |               +---config
+|       |   |               |       CorsConfig.java
+|       |   |               |       
+|       |   |               +---controller
+|       |   |               |       TripController.java
+|       |   |               |       
+|       |   |               +---dto
+|       |   |               |       TripRequest.java
+|       |   |               |       TripSearchCriteria.java
+|       |   |               |       TripSummary.java
+|       |   |               |       
+|       |   |               +---model
+|       |   |               |       Trip.java
+|       |   |               |       
+|       |   |               +---repository
+|       |   |               |       InMemoryTripRepository.java
+|       |   |               |       TripRepository.java
+|       |   |               |       
+|       |   |               \---service
+|       |   |                       TripService.java
+|       |   |                       
+|       |   \---resources
+|       |       |   application.properties
+|       |       |   
+|       |       +---static
+|       |       \---templates
+|       \---test
+|           \---java
+|               \---com
+|                   \---travlr
+|                       \---api
+|                           |   AppApiApplicationTests.java
+|                           |   
+|                           +---repository
+|                           |       InMemoryTripRepositoryTest.java
+|                           |       
+|                           \---service
+|                                   TripServiceDefensiveInputTest.java
+|                                   TripServiceTest.java
+|                                   
+\---app-client
+    |   .gitignore
+    |   eslint.config.js
+    |   index.html
+    |   package-lock.json
+    |   package.json
+    |   README.md
+    |   vite.config.js
+    |   
+    +---public
+    |   |   favicon.svg
+    |   |   icons.svg
+    |   |   
+    |   \---images
+    |           bg-adbox.png
+    |           bg-body.jpg
+    |           bg-box.png
+    |           bg-foodDetail.png
+    |           bg-foodInfos.png
+    |           bg-menu.png
+    |           bg-navigation.png
+    |           bg-pattern.jpg
+    |           btn-send.png
+    |           buffet.jpg
+    |           content-box.png
+    |           deluxe.jpg
+    |           desserts.jpg
+    |           dive-site.png
+    |           first-class.jpg
+    |           food.png
+    |           icons.png
+    |           kayak.jpg
+    |           logo.png
+    |           reef1.jpg
+    |           reef2.jpg
+    |           reef3.jpg
+    |           rooms.png
+    |           sea-sound.jpg
+    |           seafoods.jpg
+    |           searchbar.png
+    |           suite.jpg
+    |           
+    \---src
+        |   App.css
+        |   App.jsx
+        |   index.css
+        |   main.jsx
+        |   
+        +---api
+        |       tripApi.js
+        |       
+        +---assets
+        |       hero.png
+        |       react.svg
+        |       vite.svg
+        |       
+        \---components
+                TripCard.jsx
+                TripList.jsx
+                
