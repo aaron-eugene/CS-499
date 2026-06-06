@@ -1,5 +1,14 @@
 package com.travlr.api.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -8,21 +17,55 @@ import java.time.LocalDate;
  *
  * This enhanced model replaces display-oriented string fields from the
  * original MEAN implementation with typed fields that support filtering,
- * sorting, validation, and future PostgreSQL mapping.
+ * sorting, validation, and PostgreSQL persistence.
  *
- * This class currently acts as the API/domain model for the milestone
- * implementation. As the database layer is added, persistence-specific concerns
- * can be added through JPA annotations or moved into a dedicated entity class.
+ * The trip code remains the stable public identifier used by the API, while the
+ * generated database id provides an internal primary key for relational
+ * persistence.
  */
+@Entity
+@Table(name = "trips", uniqueConstraints = {
+		@UniqueConstraint(name = "uk_trips_code", columnNames = "code")
+}, indexes = {
+		@Index(name = "idx_trips_code", columnList = "code"),
+		@Index(name = "idx_trips_name", columnList = "name"),
+		@Index(name = "idx_trips_resort", columnList = "resort"),
+		@Index(name = "idx_trips_start_date", columnList = "start_date")
+})
 public class Trip {
-	private final String code;
-	private final String name;
-	private final int durationDays;
-	private final LocalDate startDate;
-	private final String resort;
-	private final BigDecimal pricePerPerson;
-	private final String imageName;
-	private final String description;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Column(nullable = false, length = 14)
+	private String code;
+
+	@Column(nullable = false, length = 100)
+	private String name;
+
+	@Column(name = "duration_days", nullable = false)
+	private int durationDays;
+
+	@Column(name = "start_date", nullable = false)
+	private LocalDate startDate;
+
+	@Column(nullable = false, length = 150)
+	private String resort;
+
+	@Column(name = "price_per_person", nullable = false, precision = 10, scale = 2)
+	private BigDecimal pricePerPerson;
+
+	@Column(name = "image_name", nullable = false, length = 100)
+	private String imageName;
+
+	@Column(nullable = false, length = 1000)
+	private String description;
+
+	/**
+	 * Required by JPA for entity construction.
+	 */
+	protected Trip() {
+	}
 
 	/**
 	 * Creates a trip record with typed fields for application and API use.
@@ -46,6 +89,10 @@ public class Trip {
 		this.pricePerPerson = pricePerPerson;
 		this.imageName = imageName;
 		this.description = description;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public String getCode() {
