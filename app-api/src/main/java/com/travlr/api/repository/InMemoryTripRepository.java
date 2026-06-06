@@ -2,6 +2,7 @@ package com.travlr.api.repository;
 
 import com.travlr.api.model.Trip;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  * behind the repository interface.
  */
 @Repository
+@Profile("memory")
 public class InMemoryTripRepository implements TripRepository {
 	private final List<Trip> trips;
 	private final Map<String, Trip> tripsByCode;
