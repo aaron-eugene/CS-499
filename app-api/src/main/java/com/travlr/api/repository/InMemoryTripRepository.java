@@ -1,5 +1,7 @@
 package com.travlr.api.repository;
 
+import com.travlr.api.dto.TripSearchCriteria;
+import com.travlr.api.dto.TripSummary;
 import com.travlr.api.model.Trip;
 
 import org.springframework.context.annotation.Profile;
@@ -7,25 +9,21 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * In-memory trip repository used for the current milestone implementation.
+ * In-memory trip repository available only through the memory Spring profile.
  *
- * This class provides seed trip data while preserving the repository boundary
- * that will later be implemented with PostgreSQL.
- *
- * The in-memory implementation stores trips in a list for ordered collection
- * operations and builds a lookup map keyed by trip code for efficient
- * single-record retrieval. The trip-code map also reinforces the expectation
- * that trip codes are unique identifiers. This supports the algorithms and data
- * structures enhancement while keeping the future database transition isolated
- * behind the repository interface.
+ * This class preserves a simple fallback implementation of the TripRepository
+ * interface for local testing or comparison. The default application profile
+ * uses PostgreSQL-backed persistence.
  */
 @Repository
 @Profile("memory")
@@ -34,7 +32,8 @@ public class InMemoryTripRepository implements TripRepository {
 	private final Map<String, Trip> tripsByCode;
 
 	/**
-	 * Creates the in-memory repository with seed trip data and a trip-code index.
+	 * Creates the in-memory repository with seed trip data and a trip-code lookup
+	 * map.
 	 */
 	public InMemoryTripRepository() {
 		this.trips = List.of(
@@ -102,6 +101,56 @@ public class InMemoryTripRepository implements TripRepository {
 	@Override
 	public List<Trip> findAll() {
 		return List.copyOf(trips);
+	}
+
+	/**
+	 * Retrieves all in-memory trips.
+	 *
+	 * Search, filtering, sorting, and pagination are implemented by the
+	 * PostgreSQL-backed repository used in the default application profile. The
+	 * memory profile returns the full fallback catalog.
+	 *
+	 * @param criteria search, filter, sort, and pagination options
+	 * @return all in-memory trip records
+	 */
+	@Override
+	public List<Trip> findAll(TripSearchCriteria criteria) {
+		return findAll();
+	}
+
+	@Override
+	public TripSummary getSummary() {
+		if (trips.isEmpty()) {
+			return new TripSummary(0, List.of(), null, null, null, null);
+		}
+
+		TreeSet<String> resorts = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+		for (Trip trip : trips) {
+			resorts.add(trip.getResort());
+		}
+
+		BigDecimal minPrice = trips.stream()
+				.map(Trip::getPricePerPerson)
+				.min(BigDecimal::compareTo)
+				.orElse(null);
+
+		BigDecimal maxPrice = trips.stream()
+				.map(Trip::getPricePerPerson)
+				.max(BigDecimal::compareTo)
+				.orElse(null);
+
+		IntSummaryStatistics durationStats = trips.stream()
+				.mapToInt(Trip::getDurationDays)
+				.summaryStatistics();
+
+		return new TripSummary(
+				trips.size(),
+				List.copyOf(resorts),
+				minPrice,
+				maxPrice,
+				durationStats.getMin(),
+				durationStats.getMax());
 	}
 
 	@Override

@@ -16,11 +16,11 @@ import java.time.LocalDate;
 /**
  * Represents client-provided trip data for future write operations.
  *
- * This DTO separates incoming request data from the internal trip model so
- * validation can be applied at the API boundary before data reaches the
- * service or persistence layers. As create and update endpoints are added,
- * separate request DTOs may be introduced so route identifiers remain separate
- * from editable request body fields.
+ * This DTO separates incoming request data from the persistent Trip entity so
+ * validation can be applied at the API boundary before data reaches the service
+ * or repository layers. As create and update endpoints are added, separate
+ * request DTOs may be introduced so route identifiers remain separate from
+ * editable request body fields.
  */
 public class TripRequest {
 	@NotBlank(message = "Trip code is required.")

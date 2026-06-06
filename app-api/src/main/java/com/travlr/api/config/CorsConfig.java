@@ -10,8 +10,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * The allowed origin is read from application configuration so local and
  * deployed environments can use different frontend URLs without changing
- * controller source code. The current milestone exposes read-only API behavior,
- * so CORS is limited to GET and OPTIONS requests.
+ * controller source code. The current public API is read-only, so CORS is
+ * limited to GET and OPTIONS requests until protected write endpoints are
+ * added.
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -29,7 +30,7 @@ public class CorsConfig implements WebMvcConfigurer {
 	/**
 	 * Applies CORS rules to API endpoints.
 	 *
-	 * Write methods should not be added here until matching backend
+	 * Write methods should not be allowed here until matching backend
 	 * authentication and authorization controls are implemented.
 	 *
 	 * @param registry CORS registry used by Spring MVC

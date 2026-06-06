@@ -11,20 +11,21 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests the trip service query logic used by the algorithms and data structures
- * enhancement.
+ * Tests the TripService application boundary.
  *
- * These tests use a controlled in-memory repository so the service behavior can
- * be verified independently from the application's seed data.
+ * Search, filtering, sorting, pagination, and summary aggregation are delegated
+ * to the repository layer so the PostgreSQL-backed implementation can perform
+ * those operations with database queries. These tests verify that the service
+ * coordinates trip operations without depending on the storage implementation.
  */
 class TripServiceTest {
 	private TripService tripService;
+	private TestTripRepository testRepository;
 	private List<Trip> testTrips;
 
 	/**
@@ -61,179 +62,53 @@ class TripServiceTest {
 						"deluxe.jpg",
 						"Luxury lagoon retreat."));
 
-		tripService = new TripService(new TestTripRepository(testTrips));
+		testRepository = new TestTripRepository(testTrips);
+		tripService = new TripService(testRepository);
 	}
 
 	/**
-	 * Verifies that all trips are returned when no search criteria are supplied.
+	 * Verifies that trip criteria are delegated to the repository.
 	 */
 	@Test
-	void getTripsReturnsAllTripsWhenCriteriaIsEmpty() {
-		List<Trip> trips = tripService.getTrips(new TripSearchCriteria());
-
-		assertEquals(testTrips.size(), trips.size());
-	}
-
-	/**
-	 * Verifies that maximum price filtering excludes trips above the requested
-	 * price.
-	 */
-	@Test
-	void getTripsFiltersByMaximumPrice() {
-		BigDecimal maxPrice = new BigDecimal("1500.00");
-
+	void getTripsDelegatesCriteriaToRepository() {
 		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setMaxPrice(maxPrice);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertFalse(trips.isEmpty());
-
-		for (Trip trip : trips) {
-			assertTrue(trip.getPricePerPerson().compareTo(maxPrice) <= 0);
-		}
-	}
-
-	/**
-	 * Verifies that minimum and maximum price filters can be combined.
-	 */
-	@Test
-	void getTripsFiltersByPriceRange() {
-		BigDecimal minPrice = new BigDecimal("1000.00");
-		BigDecimal maxPrice = new BigDecimal("2000.00");
-
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setMinPrice(minPrice);
-		criteria.setMaxPrice(maxPrice);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertFalse(trips.isEmpty());
-
-		for (Trip trip : trips) {
-			assertTrue(trip.getPricePerPerson().compareTo(minPrice) >= 0);
-			assertTrue(trip.getPricePerPerson().compareTo(maxPrice) <= 0);
-		}
-	}
-
-	/**
-	 * Verifies that duration filters can be combined.
-	 */
-	@Test
-	void getTripsFiltersByDurationRange() {
-		int minDays = 5;
-		int maxDays = 8;
-
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setMinDays(minDays);
-		criteria.setMaxDays(maxDays);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertFalse(trips.isEmpty());
-
-		for (Trip trip : trips) {
-			assertTrue(trip.getDurationDays() >= minDays);
-			assertTrue(trip.getDurationDays() <= maxDays);
-		}
-	}
-
-	/**
-	 * Verifies that keyword search checks catalog text fields.
-	 */
-	@Test
-	void getTripsSearchesByKeyword() {
-		String search = "reef";
-
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setSearch(search);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertFalse(trips.isEmpty());
-
-		for (Trip trip : trips) {
-			String combinedSearchText = (trip.getCode() + " "
-					+ trip.getName() + " "
-					+ trip.getResort() + " "
-					+ trip.getDescription())
-					.toLowerCase(Locale.ROOT);
-
-			assertTrue(combinedSearchText.contains(search));
-		}
-	}
-
-	/**
-	 * Verifies that price sorting in descending order produces a correctly ordered
-	 * result list.
-	 */
-	@Test
-	void getTripsSortsByPriceDescending() {
-		TripSearchCriteria criteria = new TripSearchCriteria();
+		criteria.setSearch("reef");
+		criteria.setMinPrice(new BigDecimal("500.00"));
+		criteria.setMaxPrice(new BigDecimal("2000.00"));
 		criteria.setSort("price");
 		criteria.setDirection("desc");
+		criteria.setPage(0);
+		criteria.setSize(2);
 
 		List<Trip> trips = tripService.getTrips(criteria);
 
 		assertEquals(testTrips.size(), trips.size());
-
-		for (int index = 1; index < trips.size(); index++) {
-			BigDecimal previousPrice = trips.get(index - 1).getPricePerPerson();
-			BigDecimal currentPrice = trips.get(index).getPricePerPerson();
-
-			assertTrue(previousPrice.compareTo(currentPrice) >= 0);
-		}
+		assertSame(criteria, testRepository.lastCriteria);
 	}
 
 	/**
-	 * Verifies that pagination returns no more than the requested page size.
+	 * Verifies that null criteria are replaced with a safe empty criteria object.
 	 */
 	@Test
-	void getTripsAppliesPaginationSizeLimit() {
-		int requestedSize = 2;
+	void getTripsHandlesNullCriteria() {
+		List<Trip> trips = tripService.getTrips(null);
 
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setPage(0);
-		criteria.setSize(requestedSize);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertTrue(trips.size() <= requestedSize);
+		assertEquals(testTrips.size(), trips.size());
+		assertNotNull(testRepository.lastCriteria);
 	}
 
 	/**
-	 * Verifies that different pages do not return the same first record when the
-	 * page size creates multiple pages.
-	 */
-	@Test
-	void getTripsReturnsDifferentResultsForDifferentPages() {
-		TripSearchCriteria firstPageCriteria = new TripSearchCriteria();
-		firstPageCriteria.setPage(0);
-		firstPageCriteria.setSize(1);
-
-		TripSearchCriteria secondPageCriteria = new TripSearchCriteria();
-		secondPageCriteria.setPage(1);
-		secondPageCriteria.setSize(1);
-
-		List<Trip> firstPage = tripService.getTrips(firstPageCriteria);
-		List<Trip> secondPage = tripService.getTrips(secondPageCriteria);
-
-		assertEquals(1, firstPage.size());
-		assertEquals(1, secondPage.size());
-		assertNotEquals(firstPage.get(0).getCode(), secondPage.get(0).getCode());
-	}
-
-	/**
-	 * Verifies that trip lookup by code is case-insensitive.
+	 * Verifies that trip lookup by code is delegated to the repository.
 	 */
 	@Test
 	void getTripFindsTripByCodeCaseInsensitively() {
-		String existingCode = testTrips.get(0).getCode().toLowerCase(Locale.ROOT);
+		String existingCode = testTrips.get(0).getCode().toLowerCase();
 
 		Optional<Trip> trip = tripService.getTrip(existingCode);
 
 		assertTrue(trip.isPresent());
 		assertEquals(testTrips.get(0).getCode(), trip.get().getCode());
+		assertEquals(existingCode, testRepository.lastLookupCode);
 	}
 
 	/**
@@ -244,72 +119,22 @@ class TripServiceTest {
 		Optional<Trip> trip = tripService.getTrip("UNKNOWN999");
 
 		assertTrue(trip.isEmpty());
+		assertEquals("UNKNOWN999", testRepository.lastLookupCode);
 	}
 
 	/**
-	 * Verifies that the catalog summary is derived from the repository data.
+	 * Verifies that catalog summary requests are delegated to the repository.
 	 */
 	@Test
-	void getTripSummaryReturnsCatalogMetadata() {
+	void getTripSummaryDelegatesToRepository() {
 		TripSummary summary = tripService.getTripSummary();
 
+		assertTrue(testRepository.summaryRequested);
 		assertEquals(testTrips.size(), summary.getTotalTrips());
-		assertEquals(findLowestPrice(testTrips), summary.getMinPrice());
-		assertEquals(findHighestPrice(testTrips), summary.getMaxPrice());
-		assertEquals(findShortestDuration(testTrips), summary.getMinDurationDays());
-		assertEquals(findLongestDuration(testTrips), summary.getMaxDurationDays());
-	}
-
-	/**
-	 * Finds the lowest price in the controlled test data.
-	 *
-	 * @param trips trips to inspect
-	 * @return lowest price per person
-	 */
-	private BigDecimal findLowestPrice(List<Trip> trips) {
-		return trips.stream()
-				.map(Trip::getPricePerPerson)
-				.min(BigDecimal::compareTo)
-				.orElseThrow();
-	}
-
-	/**
-	 * Finds the highest price in the controlled test data.
-	 *
-	 * @param trips trips to inspect
-	 * @return highest price per person
-	 */
-	private BigDecimal findHighestPrice(List<Trip> trips) {
-		return trips.stream()
-				.map(Trip::getPricePerPerson)
-				.max(BigDecimal::compareTo)
-				.orElseThrow();
-	}
-
-	/**
-	 * Finds the shortest trip duration in the controlled test data.
-	 *
-	 * @param trips trips to inspect
-	 * @return shortest trip duration in days
-	 */
-	private int findShortestDuration(List<Trip> trips) {
-		return trips.stream()
-				.mapToInt(Trip::getDurationDays)
-				.min()
-				.orElseThrow();
-	}
-
-	/**
-	 * Finds the longest trip duration in the controlled test data.
-	 *
-	 * @param trips trips to inspect
-	 * @return longest trip duration in days
-	 */
-	private int findLongestDuration(List<Trip> trips) {
-		return trips.stream()
-				.mapToInt(Trip::getDurationDays)
-				.max()
-				.orElseThrow();
+		assertEquals(new BigDecimal("500.00"), summary.getMinPrice());
+		assertEquals(new BigDecimal("2500.00"), summary.getMaxPrice());
+		assertEquals(3, summary.getMinDurationDays());
+		assertEquals(10, summary.getMaxDurationDays());
 	}
 
 	/**
@@ -317,6 +142,9 @@ class TripServiceTest {
 	 */
 	private static class TestTripRepository implements TripRepository {
 		private final List<Trip> trips;
+		private TripSearchCriteria lastCriteria;
+		private String lastLookupCode;
+		private boolean summaryRequested;
 
 		/**
 		 * Creates a test repository backed by controlled trip data.
@@ -333,7 +161,29 @@ class TripServiceTest {
 		}
 
 		@Override
+		public List<Trip> findAll(TripSearchCriteria criteria) {
+			this.lastCriteria = criteria;
+
+			return findAll();
+		}
+
+		@Override
+		public TripSummary getSummary() {
+			this.summaryRequested = true;
+
+			return new TripSummary(
+					trips.size(),
+					List.of("Blue Harbor, 4 stars", "Coral Bay, 3 stars", "Palm Vista, 5 stars"),
+					new BigDecimal("500.00"),
+					new BigDecimal("2500.00"),
+					3,
+					10);
+		}
+
+		@Override
 		public Optional<Trip> findByCode(String code) {
+			this.lastLookupCode = code;
+
 			if (code == null || code.isBlank()) {
 				return Optional.empty();
 			}

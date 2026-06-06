@@ -9,11 +9,11 @@ import java.math.BigDecimal;
  * The search field is treated as a general catalog keyword. It is matched
  * against trip code, name, resort, and description so callers can search
  * visible trip information without selecting a specific field. Numeric
- * criteria support price and duration range filtering, while sort,
- * direction, page, and size control result ordering and bounded pagination.
+ * criteria support price and duration range filtering, while sort, direction,
+ * page, and size control result ordering and bounded pagination.
  *
- * Validation for unsupported or missing query values is handled defensively in
- * the service layer so optional search criteria can remain flexible for the
+ * Unsupported or missing query values are handled defensively by the repository
+ * query implementation so optional search criteria can remain flexible for the
  * current read-only API.
  *
  * This DTO keeps HTTP query parameters out of the service method signature so
@@ -33,7 +33,7 @@ public class TripSearchCriteria {
 	/**
 	 * Creates an empty criteria object.
 	 *
-	 * Empty criteria means the service should use its default query behavior.
+	 * Empty criteria means the application should use its default query behavior.
 	 */
 	public TripSearchCriteria() {
 	}

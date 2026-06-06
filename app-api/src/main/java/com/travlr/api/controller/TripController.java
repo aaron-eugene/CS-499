@@ -16,11 +16,11 @@ import java.util.List;
 /**
  * Handles REST API requests for trip resources.
  *
- * This controller exposes read-only trip endpoints for the current milestone
- * implementation. It accepts query criteria from API callers and delegates
- * search, filter, sort, pagination, lookup, and summary behavior to the service
- * layer. Future create, update, and delete endpoints should be protected with
- * admin authorization before they are exposed.
+ * This controller exposes the current public read-only trip API. It accepts
+ * query criteria from API callers and delegates trip listing, lookup, and
+ * summary requests to the service layer. Future create, update, and delete
+ * endpoints should be protected with admin authorization before they are
+ * exposed.
  */
 @RestController
 @RequestMapping("/api/trips")
@@ -49,8 +49,8 @@ public class TripController {
 	/**
 	 * Retrieves one trip by its stable public trip code.
 	 *
-	 * @param code unique trip code
-	 * @return matching trip or 404 if no trip is found
+	 * @param code unique public trip code
+	 * @return matching trip, or 404 if no trip is found
 	 */
 	@GetMapping("/{code}")
 	public ResponseEntity<Trip> getTrip(@PathVariable String code) {

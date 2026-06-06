@@ -1,6 +1,7 @@
 package com.travlr.api.service;
 
 import com.travlr.api.dto.TripSearchCriteria;
+import com.travlr.api.dto.TripSummary;
 import com.travlr.api.model.Trip;
 import com.travlr.api.repository.TripRepository;
 
@@ -15,14 +16,17 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests defensive handling of user-controlled trip query input.
+ * Tests defensive handling of service-layer trip input.
  *
- * These tests support the security mindset for the algorithms and data
- * structures enhancement by verifying that unexpected query values do not cause
- * service failures, unbounded result behavior, or unsafe lookup behavior.
+ * Query filtering, sorting, and pagination are now handled by the repository
+ * layer so the PostgreSQL implementation can perform those operations with
+ * database-backed queries. These tests focus on the service boundary: null
+ * criteria handling, repository delegation, summary delegation, and safe lookup
+ * behavior.
  */
 class TripServiceDefensiveInputTest {
 	private TripService tripService;
+	private TestTripRepository testRepository;
 	private List<Trip> testTrips;
 
 	/**
@@ -48,97 +52,38 @@ class TripServiceDefensiveInputTest {
 						"Blue Harbor, 4 stars",
 						new BigDecimal("1500.00"),
 						"kayak.jpg",
-						"Island kayaking and snorkeling."),
-				new Trip(
-						"CHARLIE003",
-						"Charlie Lagoon",
-						10,
-						LocalDate.of(2027, 9, 20),
-						"Palm Vista, 5 stars",
-						new BigDecimal("2500.00"),
-						"deluxe.jpg",
-						"Luxury lagoon retreat."));
+						"Island kayaking and snorkeling."));
 
-		tripService = new TripService(new TestTripRepository(testTrips));
+		testRepository = new TestTripRepository(testTrips);
+		tripService = new TripService(testRepository);
 	}
 
 	/**
-	 * Verifies that an unsupported sort field does not cause query processing to
-	 * fail.
+	 * Verifies that null criteria are replaced with a safe empty criteria object
+	 * before being passed to the repository.
 	 */
 	@Test
-	void getTripsHandlesUnsupportedSortField() {
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setSort("notARealField");
-
-		List<Trip> trips = tripService.getTrips(criteria);
+	void getTripsHandlesNullCriteria() {
+		List<Trip> trips = tripService.getTrips(null);
 
 		assertEquals(testTrips.size(), trips.size());
+		assertNotNull(testRepository.lastCriteria);
 	}
 
 	/**
-	 * Verifies that unexpected sort direction values do not reverse the result
-	 * set.
+	 * Verifies that supplied criteria are delegated to the repository.
 	 */
 	@Test
-	void getTripsIgnoresUnsupportedSortDirection() {
+	void getTripsDelegatesCriteriaToRepository() {
 		TripSearchCriteria criteria = new TripSearchCriteria();
+		criteria.setSearch("reef");
 		criteria.setSort("price");
-		criteria.setDirection("sideways");
+		criteria.setDirection("desc");
 
 		List<Trip> trips = tripService.getTrips(criteria);
 
 		assertEquals(testTrips.size(), trips.size());
-
-		for (int index = 1; index < trips.size(); index++) {
-			BigDecimal previousPrice = trips.get(index - 1).getPricePerPerson();
-			BigDecimal currentPrice = trips.get(index).getPricePerPerson();
-
-			assertTrue(previousPrice.compareTo(currentPrice) <= 0);
-		}
-	}
-
-	/**
-	 * Verifies that a negative page number is handled safely.
-	 */
-	@Test
-	void getTripsHandlesNegativePageNumber() {
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setPage(-1);
-		criteria.setSize(1);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertEquals(1, trips.size());
-	}
-
-	/**
-	 * Verifies that a zero page size is replaced by a safe default.
-	 */
-	@Test
-	void getTripsHandlesZeroPageSize() {
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setPage(0);
-		criteria.setSize(0);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertEquals(testTrips.size(), trips.size());
-	}
-
-	/**
-	 * Verifies that an oversized page request does not return more records than
-	 * exist in the controlled data set.
-	 */
-	@Test
-	void getTripsHandlesOversizedPageSize() {
-		TripSearchCriteria criteria = new TripSearchCriteria();
-		criteria.setPage(0);
-		criteria.setSize(1000);
-
-		List<Trip> trips = tripService.getTrips(criteria);
-
-		assertEquals(testTrips.size(), trips.size());
+		assertSame(criteria, testRepository.lastCriteria);
 	}
 
 	/**
@@ -164,10 +109,23 @@ class TripServiceDefensiveInputTest {
 	}
 
 	/**
+	 * Verifies that summary requests are delegated to the repository.
+	 */
+	@Test
+	void getTripSummaryDelegatesToRepository() {
+		TripSummary summary = tripService.getTripSummary();
+
+		assertEquals(testTrips.size(), summary.getTotalTrips());
+		assertTrue(testRepository.summaryRequested);
+	}
+
+	/**
 	 * Simple repository implementation used only by service tests.
 	 */
 	private static class TestTripRepository implements TripRepository {
 		private final List<Trip> trips;
+		private TripSearchCriteria lastCriteria;
+		private boolean summaryRequested;
 
 		/**
 		 * Creates a test repository backed by controlled trip data.
@@ -181,6 +139,26 @@ class TripServiceDefensiveInputTest {
 		@Override
 		public List<Trip> findAll() {
 			return List.copyOf(trips);
+		}
+
+		@Override
+		public List<Trip> findAll(TripSearchCriteria criteria) {
+			this.lastCriteria = criteria;
+
+			return findAll();
+		}
+
+		@Override
+		public TripSummary getSummary() {
+			this.summaryRequested = true;
+
+			return new TripSummary(
+					trips.size(),
+					List.of(),
+					null,
+					null,
+					null,
+					null);
 		}
 
 		@Override

@@ -4,12 +4,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Represents computed summary information for the trip catalog.
+ * Represents summary information for the trip catalog.
  *
- * This response DTO supports the algorithms and data structures enhancement by
- * showing derived values from the current trip collection, including distinct
- * resort values and numeric ranges that can be used by a client to build
- * filtering controls.
+ * This response DTO exposes derived catalog values, including distinct resort
+ * values and numeric ranges that can be used by a client to build filtering
+ * controls. In the default PostgreSQL-backed implementation, these values are
+ * produced through repository/database aggregation rather than client-side
+ * calculation.
  */
 public class TripSummary {
 	private final int totalTrips;

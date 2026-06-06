@@ -27,7 +27,6 @@ import java.time.LocalDate;
 @Table(name = "trips", uniqueConstraints = {
 		@UniqueConstraint(name = "uk_trips_code", columnNames = "code")
 }, indexes = {
-		@Index(name = "idx_trips_code", columnList = "code"),
 		@Index(name = "idx_trips_name", columnList = "name"),
 		@Index(name = "idx_trips_resort", columnList = "resort"),
 		@Index(name = "idx_trips_start_date", columnList = "start_date")
@@ -63,6 +62,9 @@ public class Trip {
 
 	/**
 	 * Required by JPA for entity construction.
+	 *
+	 * Protected visibility prevents normal application code from creating an
+	 * incomplete Trip instance directly.
 	 */
 	protected Trip() {
 	}
