@@ -128,8 +128,12 @@ travlr/
 C:.
 |   .gitignore
 |   README.md
+|   travlr_clean_tree.txt
 |   travlr_tree.txt
 |   
++---.vscode
+|       settings.json
+|       
 +---app-api
 |   |   .gitattributes
 |   |   .gitignore
@@ -142,54 +146,116 @@ C:.
 |   |   \---wrapper
 |   |           maven-wrapper.properties
 |   |           
-|   \---src
-|       +---main
-|       |   +---java
-|       |   |   \---com
-|       |   |       \---travlr
-|       |   |           \---api
-|       |   |               |   AppApiApplication.java
-|       |   |               |   
-|       |   |               +---config
-|       |   |               |       CorsConfig.java
-|       |   |               |       
-|       |   |               +---controller
-|       |   |               |       TripController.java
-|       |   |               |       
-|       |   |               +---dto
-|       |   |               |       TripRequest.java
-|       |   |               |       TripSearchCriteria.java
-|       |   |               |       TripSummary.java
-|       |   |               |       
-|       |   |               +---model
-|       |   |               |       Trip.java
-|       |   |               |       
-|       |   |               +---repository
-|       |   |               |       InMemoryTripRepository.java
-|       |   |               |       TripRepository.java
-|       |   |               |       
-|       |   |               \---service
-|       |   |                       TripService.java
-|       |   |                       
-|       |   \---resources
-|       |       |   application.properties
-|       |       |   
-|       |       +---static
-|       |       \---templates
-|       \---test
-|           \---java
-|               \---com
-|                   \---travlr
-|                       \---api
-|                           |   AppApiApplicationTests.java
-|                           |   
-|                           +---repository
-|                           |       InMemoryTripRepositoryTest.java
-|                           |       
-|                           \---service
-|                                   TripServiceDefensiveInputTest.java
-|                                   TripServiceTest.java
-|                                   
+|   +---src
+|   |   +---main
+|   |   |   +---java
+|   |   |   |   \---com
+|   |   |   |       \---travlr
+|   |   |   |           \---api
+|   |   |   |               |   AppApiApplication.java
+|   |   |   |               |   
+|   |   |   |               +---config
+|   |   |   |               |       CorsConfig.java
+|   |   |   |               |       
+|   |   |   |               +---controller
+|   |   |   |               |       TripController.java
+|   |   |   |               |       
+|   |   |   |               +---dto
+|   |   |   |               |       TripRequest.java
+|   |   |   |               |       TripSearchCriteria.java
+|   |   |   |               |       TripSummary.java
+|   |   |   |               |       
+|   |   |   |               +---model
+|   |   |   |               |       Trip.java
+|   |   |   |               |       
+|   |   |   |               +---repository
+|   |   |   |               |       InMemoryTripRepository.java
+|   |   |   |               |       JpaTripRepository.java
+|   |   |   |               |       SpringDataTripRepository.java
+|   |   |   |               |       TripRepository.java
+|   |   |   |               |       
+|   |   |   |               \---service
+|   |   |   |                       TripService.java
+|   |   |   |                       
+|   |   |   \---resources
+|   |   |       |   application.properties
+|   |   |       |   
+|   |   |       +---db
+|   |   |       |   \---migration
+|   |   |       |           V1__create_trips_table.sql
+|   |   |       |           V2__seed_trips.sql
+|   |   |       |           
+|   |   |       +---static
+|   |   |       \---templates
+|   |   \---test
+|   |       \---java
+|   |           \---com
+|   |               \---travlr
+|   |                   \---api
+|   |                       |   AppApiApplicationTests.java
+|   |                       |   
+|   |                       +---repository
+|   |                       |       InMemoryTripRepositoryTest.java
+|   |                       |       JpaTripRepositoryTest.java
+|   |                       |       
+|   |                       \---service
+|   |                               TripServiceDefensiveInputTest.java
+|   |                               TripServiceTest.java
+|   |                               
+|   \---target
+|       +---classes
+|       |   |   application.properties
+|       |   |   
+|       |   +---com
+|       |   |   \---travlr
+|       |   |       \---api
+|       |   |           |   AppApiApplication.class
+|       |   |           |   
+|       |   |           +---config
+|       |   |           |       CorsConfig.class
+|       |   |           |       
+|       |   |           +---controller
+|       |   |           |       TripController.class
+|       |   |           |       
+|       |   |           +---dto
+|       |   |           |       TripRequest.class
+|       |   |           |       TripSearchCriteria.class
+|       |   |           |       TripSummary.class
+|       |   |           |       
+|       |   |           +---model
+|       |   |           |       Trip.class
+|       |   |           |       
+|       |   |           +---repository
+|       |   |           |       InMemoryTripRepository.class
+|       |   |           |       JpaTripRepository.class
+|       |   |           |       SpringDataTripRepository$TripSummaryStats.class
+|       |   |           |       SpringDataTripRepository.class
+|       |   |           |       TripRepository.class
+|       |   |           |       
+|       |   |           \---service
+|       |   |                   TripService.class
+|       |   |                   
+|       |   \---db
+|       |       \---migration
+|       |               V1__create_trips_table.sql
+|       |               V2__seed_trips.sql
+|       |               
+|       \---test-classes
+|           \---com
+|               \---travlr
+|                   \---api
+|                       |   AppApiApplicationTests.class
+|                       |   
+|                       +---repository
+|                       |       InMemoryTripRepositoryTest.class
+|                       |       JpaTripRepositoryTest.class
+|                       |       
+|                       \---service
+|                               TripServiceDefensiveInputTest$TestTripRepository.class
+|                               TripServiceDefensiveInputTest.class
+|                               TripServiceTest$TestTripRepository.class
+|                               TripServiceTest.class
+|                               
 \---app-client
     |   .gitignore
     |   eslint.config.js
@@ -249,4 +315,5 @@ C:.
         \---components
                 TripCard.jsx
                 TripList.jsx
+				
                 
