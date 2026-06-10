@@ -10,9 +10,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * The allowed origin is read from application configuration so local and
  * deployed environments can use different frontend URLs without changing
- * controller source code. The current public API is read-only, so CORS is
- * limited to GET and OPTIONS requests until protected write endpoints are
- * added.
+ * controller source code. Public browsing routes use GET requests, while
+ * protected administrative routes use write methods under /api/admin.
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -30,8 +29,9 @@ public class CorsConfig implements WebMvcConfigurer {
 	/**
 	 * Applies CORS rules to API endpoints.
 	 *
-	 * Write methods should not be allowed here until matching backend
-	 * authentication and authorization controls are implemented.
+	 * Authorization is still enforced by Spring Security. Allowing write methods
+	 * here only permits browser preflight checks and cross-origin requests from
+	 * the configured frontend origin.
 	 *
 	 * @param registry CORS registry used by Spring MVC
 	 */
@@ -39,7 +39,7 @@ public class CorsConfig implements WebMvcConfigurer {
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/api/**")
 				.allowedOrigins(allowedOrigin)
-				.allowedMethods("GET", "OPTIONS")
+				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 				.allowedHeaders("*");
 	}
 }
