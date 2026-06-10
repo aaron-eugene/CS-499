@@ -101,6 +101,25 @@ public class JpaTripRepository implements TripRepository {
 		return springDataTripRepository.findByCodeIgnoreCase(code.trim());
 	}
 
+	@Override
+	public boolean existsByCode(String code) {
+		if (code == null || code.isBlank()) {
+			return false;
+		}
+
+		return springDataTripRepository.existsByCodeIgnoreCase(code.trim());
+	}
+
+	@Override
+	public Trip save(Trip trip) {
+		return springDataTripRepository.save(trip);
+	}
+
+	@Override
+	public void delete(Trip trip) {
+		springDataTripRepository.delete(trip);
+	}
+
 	/**
 	 * Builds the database query filters for trip search criteria.
 	 *

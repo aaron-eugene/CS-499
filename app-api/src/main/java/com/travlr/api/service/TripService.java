@@ -1,9 +1,11 @@
 package com.travlr.api.service;
 
+import com.travlr.api.model.Trip;
+import com.travlr.api.dto.TripCreateRequest;
+import com.travlr.api.repository.TripRepository;
 import com.travlr.api.dto.TripSearchCriteria;
 import com.travlr.api.dto.TripSummary;
-import com.travlr.api.model.Trip;
-import com.travlr.api.repository.TripRepository;
+import com.travlr.api.dto.TripUpdateRequest;
 
 import org.springframework.stereotype.Service;
 
@@ -72,5 +74,70 @@ public class TripService {
 	 */
 	public TripSummary getTripSummary() {
 		return tripRepository.getSummary();
+	}
+
+	/**
+	 * Creates a new trip from validated client-provided data.
+	 *
+	 * @param request create request containing the new trip details
+	 * @return created trip
+	 * @throws IllegalArgumentException if the trip code already exists
+	 */
+	public Trip createTrip(TripCreateRequest request) {
+		if (tripRepository.existsByCode(request.getCode())) {
+			throw new IllegalArgumentException("Trip code already exists.");
+		}
+
+		Trip trip = new Trip(
+				request.getCode(),
+				request.getName(),
+				request.getDurationDays(),
+				request.getStartDate(),
+				request.getResort(),
+				request.getPricePerPerson(),
+				request.getImageName(),
+				request.getDescription());
+
+		return tripRepository.save(trip);
+	}
+
+	/**
+	 * Updates an existing trip identified by its stable public trip code.
+	 *
+	 * @param code    public trip code from the route path
+	 * @param request update request containing editable trip details
+	 * @return updated trip, or empty if no matching trip exists
+	 */
+	public Optional<Trip> updateTrip(String code, TripUpdateRequest request) {
+		return tripRepository.findByCode(code)
+				.map(existingTrip -> {
+					existingTrip.updateDetails(
+							request.getName(),
+							request.getDurationDays(),
+							request.getStartDate(),
+							request.getResort(),
+							request.getPricePerPerson(),
+							request.getImageName(),
+							request.getDescription());
+
+					return tripRepository.save(existingTrip);
+				});
+	}
+
+	/**
+	 * Deletes an existing trip identified by its stable public trip code.
+	 *
+	 * @param code public trip code from the route path
+	 * @return true if a trip was found and deleted; otherwise false
+	 */
+	public boolean deleteTrip(String code) {
+		Optional<Trip> trip = tripRepository.findByCode(code);
+
+		if (trip.isEmpty()) {
+			return false;
+		}
+
+		tripRepository.delete(trip.get());
+		return true;
 	}
 }

@@ -48,4 +48,27 @@ public interface TripRepository {
 	 * @return matching trip, if found
 	 */
 	Optional<Trip> findByCode(String code);
+
+	/**
+	 * Checks whether a trip exists with the given public trip code.
+	 *
+	 * @param code trip code to check
+	 * @return true if a matching trip exists; otherwise false
+	 */
+	boolean existsByCode(String code);
+
+	/**
+	 * Saves a trip record.
+	 *
+	 * @param trip trip to save
+	 * @return saved trip
+	 */
+	Trip save(Trip trip);
+
+	/**
+	 * Deletes a trip record.
+	 *
+	 * @param trip trip to delete
+	 */
+	void delete(Trip trip);
 }

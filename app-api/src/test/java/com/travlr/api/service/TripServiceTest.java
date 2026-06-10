@@ -181,6 +181,20 @@ class TripServiceTest {
 		}
 
 		@Override
+		public boolean existsByCode(String code) {
+			return false;
+		}
+
+		@Override
+		public Trip save(Trip trip) {
+			return trip;
+		}
+
+		@Override
+		public void delete(Trip trip) {
+		}
+
+		@Override
 		public Optional<Trip> findByCode(String code) {
 			this.lastLookupCode = code;
 
