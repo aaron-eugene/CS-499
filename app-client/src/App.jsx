@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getTrips } from './api/tripApi';
 import AdminTripManager from './components/admin/AdminTripManager';
 import TripList from './components/TripList';
-import './App.css';
+import './styles/index.css';
 
 /**
  * Main application component for the enhanced Travlr client.

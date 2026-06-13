@@ -1,0 +1,117 @@
+.site-header {
+	margin: 0 auto 28px;
+	max-width: 960px;
+	padding-top: 18px;
+}
+
+.site-header__inner {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.site-header__top {
+	align-items: flex-start;
+	display: flex;
+	justify-content: space-between;
+	max-width: 860px;
+	width: 100%;
+}
+
+.site-logo {
+	height: auto;
+	margin-left: 0;
+	width: 170px;
+}
+
+.admin-link-button {
+	background: transparent;
+	border: 0;
+	color: #1f5f8b;
+	cursor: pointer;
+	font: bold 13px Arial, Helvetica, sans-serif;
+	margin-top: 12px;
+	padding: 4px 0;
+	text-transform: uppercase;
+}
+
+.admin-link-button:hover,
+.admin-link-button:focus-visible {
+	color: #0f3f64;
+	text-decoration: underline;
+}
+
+.admin-link-button:focus-visible {
+	outline: 2px solid #1f5f8b;
+	outline-offset: 4px;
+}
+
+.site-nav {
+	background: linear-gradient(#4eb7ad, #2c9688);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	max-width: 860px;
+	width: 100%;
+}
+
+.site-nav button {
+	background: transparent;
+	border: 0;
+	border-left: 1px solid rgba(255, 255, 255, 0.18);
+	color: #fff;
+	cursor: pointer;
+	display: block;
+	font: bold 14px/48px Arial, Helvetica, sans-serif;
+	height: 48px;
+	padding: 0;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+.site-nav button:first-child {
+	border-left: 0;
+}
+
+.site-nav button:hover,
+.site-nav button:focus-visible,
+.site-nav__active {
+	background: linear-gradient(#8a7a6f, #6d6157);
+	color: #eee7c3;
+}
+
+.site-nav button:focus-visible {
+	outline: 2px solid #eee7c3;
+	outline-offset: -4px;
+}
+
+@media (max-width: 700px) {
+	.site-header__top {
+		align-items: center;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.site-logo {
+		margin-left: 0;
+	}
+
+	.admin-link-button {
+		margin-top: 0;
+	}
+
+	.site-nav {
+		grid-template-columns: 1fr;
+	}
+
+	.site-nav button {
+		border-left: 0;
+		border-top: 1px solid rgba(255, 255, 255, 0.18);
+	}
+
+	.site-nav button:first-child {
+		border-top: 0;
+	}
+}
