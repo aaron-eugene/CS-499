@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 		"spring.security.user.password=changeme",
 		"spring.security.user.roles=ADMIN"
 })
+@SuppressWarnings("null")
 class AdminTripControllerCrudTest {
 	private static final String TEST_CODE = "TSTNEW20990101";
 
@@ -57,7 +58,7 @@ class AdminTripControllerCrudTest {
 	@Test
 	void createTripCreatesNewTripWhenAuthenticated() throws Exception {
 		mockMvc.perform(post("/api/admin/trips")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validCreateJson()))
 				.andExpect(status().isCreated())
@@ -69,28 +70,37 @@ class AdminTripControllerCrudTest {
 	@Test
 	void createTripReturnsConflictForDuplicateCode() throws Exception {
 		mockMvc.perform(post("/api/admin/trips")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validCreateJson()))
 				.andExpect(status().isCreated());
 
 		mockMvc.perform(post("/api/admin/trips")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validCreateJson()))
 				.andExpect(status().isConflict());
 	}
 
 	@Test
+	void createTripReturnsBadRequestForInvalidRequest() throws Exception {
+		mockMvc.perform(post("/api/admin/trips")
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(invalidCreateJson()))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void updateTripUpdatesExistingTripWhenAuthenticated() throws Exception {
 		mockMvc.perform(post("/api/admin/trips")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validCreateJson()))
 				.andExpect(status().isCreated());
 
 		mockMvc.perform(put("/api/admin/trips/" + TEST_CODE)
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validUpdateJson()))
 				.andExpect(status().isOk())
@@ -101,9 +111,18 @@ class AdminTripControllerCrudTest {
 	}
 
 	@Test
+	void updateTripReturnsBadRequestForInvalidRequest() throws Exception {
+		mockMvc.perform(put("/api/admin/trips/" + TEST_CODE)
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(invalidUpdateJson()))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void updateTripReturnsNotFoundForUnknownCode() throws Exception {
 		mockMvc.perform(put("/api/admin/trips/NOEXST20990101")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validUpdateJson()))
 				.andExpect(status().isNotFound());
@@ -112,24 +131,24 @@ class AdminTripControllerCrudTest {
 	@Test
 	void deleteTripDeletesExistingTripWhenAuthenticated() throws Exception {
 		mockMvc.perform(post("/api/admin/trips")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme"))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(validCreateJson()))
 				.andExpect(status().isCreated());
 
 		mockMvc.perform(delete("/api/admin/trips/" + TEST_CODE)
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme")))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
 				.andExpect(status().isNoContent());
 
 		mockMvc.perform(delete("/api/admin/trips/" + TEST_CODE)
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme")))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void deleteTripReturnsNotFoundForUnknownCode() throws Exception {
 		mockMvc.perform(delete("/api/admin/trips/NOEXST20990101")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme")))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
 				.andExpect(status().isNotFound());
 	}
 
@@ -165,6 +184,39 @@ class AdminTripControllerCrudTest {
 					"description": "A test trip used to verify administrative update behavior."
 				}
 				""";
+	}
+
+	private String invalidCreateJson() {
+		return """
+				{
+					"code": "bad-code",
+					"name": "",
+					"durationDays": 0,
+					"startDate": "2000-01-01",
+					"resort": "",
+					"pricePerPerson": 0,
+					"imageName": "../bad.jpg",
+					"description": ""
+				}
+				""";
+	}
+
+	private String invalidUpdateJson() {
+		return """
+				{
+					"name": "",
+					"durationDays": 0,
+					"startDate": "2000-01-01",
+					"resort": "",
+					"pricePerPerson": 0,
+					"imageName": "../bad.jpg",
+					"description": ""
+				}
+				""";
+	}
+
+	private String adminAuthHeader() {
+		return basicAuthHeader("admin", "changeme");
 	}
 
 	private String basicAuthHeader(String username, String password) {

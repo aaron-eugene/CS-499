@@ -1,11 +1,11 @@
 package com.travlr.api.service;
 
-import com.travlr.api.model.Trip;
 import com.travlr.api.dto.TripCreateRequest;
-import com.travlr.api.repository.TripRepository;
 import com.travlr.api.dto.TripSearchCriteria;
 import com.travlr.api.dto.TripSummary;
 import com.travlr.api.dto.TripUpdateRequest;
+import com.travlr.api.model.Trip;
+import com.travlr.api.repository.TripRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -15,15 +15,14 @@ import java.util.Optional;
 /**
  * Provides trip-related application operations for the Travlr API.
  *
- * The service layer keeps controller logic separate from data access and is the
- * place where business rules, validation coordination, query processing, and
- * authorization checks can be added as the application grows.
+ * The service layer keeps controller logic separate from data access and
+ * coordinates application-level trip operations such as lookup, catalog
+ * queries,
+ * creation, updates, deletion, and summary retrieval.
  *
  * Trip search, filtering, sorting, and pagination are delegated to the
  * repository layer so the default PostgreSQL implementation can perform those
- * operations through database-backed queries. The service remains responsible
- * for coordinating application-level trip operations and delegating catalog
- * summary requests.
+ * operations through database-backed queries.
  */
 @Service
 public class TripService {
@@ -32,7 +31,7 @@ public class TripService {
 	/**
 	 * Creates a trip service backed by a trip repository.
 	 *
-	 * @param tripRepository repository used to retrieve trip data
+	 * @param tripRepository repository used to access trip data
 	 */
 	public TripService(TripRepository tripRepository) {
 		this.tripRepository = tripRepository;
@@ -41,8 +40,8 @@ public class TripService {
 	/**
 	 * Finds one trip by its stable public trip code.
 	 *
-	 * The PostgreSQL-backed repository preserves case-insensitive lookup behavior
-	 * with a unique indexed trip-code column.
+	 * The repository preserves case-insensitive lookup behavior for public trip
+	 * codes.
 	 *
 	 * @param code trip code to search for
 	 * @return matching trip, if found
@@ -133,11 +132,8 @@ public class TripService {
 	public boolean deleteTrip(String code) {
 		Optional<Trip> trip = tripRepository.findByCode(code);
 
-		if (trip.isEmpty()) {
-			return false;
-		}
+		trip.ifPresent(tripRepository::delete);
 
-		tripRepository.delete(trip.get());
-		return true;
+		return trip.isPresent();
 	}
 }

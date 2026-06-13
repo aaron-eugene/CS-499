@@ -1,7 +1,9 @@
 package com.travlr.api.service;
 
+import com.travlr.api.dto.TripCreateRequest;
 import com.travlr.api.dto.TripSearchCriteria;
 import com.travlr.api.dto.TripSummary;
+import com.travlr.api.dto.TripUpdateRequest;
 import com.travlr.api.model.Trip;
 import com.travlr.api.repository.TripRepository;
 
@@ -10,10 +12,16 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the TripService application boundary.
@@ -28,14 +36,11 @@ class TripServiceTest {
 	private TestTripRepository testRepository;
 	private List<Trip> testTrips;
 
-	/**
-	 * Creates a fresh service with controlled test data before each test.
-	 */
 	@BeforeEach
 	void setUp() {
 		testTrips = List.of(
 				new Trip(
-						"ALPHA001",
+						"ALPREF20270110",
 						"Alpha Reef",
 						3,
 						LocalDate.of(2027, 1, 10),
@@ -44,7 +49,7 @@ class TripServiceTest {
 						"reef1.jpg",
 						"Short reef trip."),
 				new Trip(
-						"BRAVO002",
+						"BRAISL20270515",
 						"Bravo Island",
 						7,
 						LocalDate.of(2027, 5, 15),
@@ -53,7 +58,7 @@ class TripServiceTest {
 						"kayak.jpg",
 						"Island kayaking and snorkeling."),
 				new Trip(
-						"CHARLIE003",
+						"CHALAG20270920",
 						"Charlie Lagoon",
 						10,
 						LocalDate.of(2027, 9, 20),
@@ -66,9 +71,6 @@ class TripServiceTest {
 		tripService = new TripService(testRepository);
 	}
 
-	/**
-	 * Verifies that trip criteria are delegated to the repository.
-	 */
 	@Test
 	void getTripsDelegatesCriteriaToRepository() {
 		TripSearchCriteria criteria = new TripSearchCriteria();
@@ -86,9 +88,6 @@ class TripServiceTest {
 		assertSame(criteria, testRepository.lastCriteria);
 	}
 
-	/**
-	 * Verifies that null criteria are replaced with a safe empty criteria object.
-	 */
 	@Test
 	void getTripsHandlesNullCriteria() {
 		List<Trip> trips = tripService.getTrips(null);
@@ -97,9 +96,6 @@ class TripServiceTest {
 		assertNotNull(testRepository.lastCriteria);
 	}
 
-	/**
-	 * Verifies that trip lookup by code is delegated to the repository.
-	 */
 	@Test
 	void getTripFindsTripByCodeCaseInsensitively() {
 		String existingCode = testTrips.get(0).getCode().toLowerCase();
@@ -111,20 +107,14 @@ class TripServiceTest {
 		assertEquals(existingCode, testRepository.lastLookupCode);
 	}
 
-	/**
-	 * Verifies that an unknown trip code returns an empty result.
-	 */
 	@Test
 	void getTripReturnsEmptyForUnknownCode() {
-		Optional<Trip> trip = tripService.getTrip("UNKNOWN999");
+		Optional<Trip> trip = tripService.getTrip("UNKTRP20990101");
 
 		assertTrue(trip.isEmpty());
-		assertEquals("UNKNOWN999", testRepository.lastLookupCode);
+		assertEquals("UNKTRP20990101", testRepository.lastLookupCode);
 	}
 
-	/**
-	 * Verifies that catalog summary requests are delegated to the repository.
-	 */
 	@Test
 	void getTripSummaryDelegatesToRepository() {
 		TripSummary summary = tripService.getTripSummary();
@@ -137,22 +127,104 @@ class TripServiceTest {
 		assertEquals(10, summary.getMaxDurationDays());
 	}
 
+	@Test
+	void createTripSavesNewTripWhenCodeDoesNotExist() {
+		TripCreateRequest request = createRequest();
+
+		Trip createdTrip = tripService.createTrip(request);
+
+		assertEquals("TSTNEW20990101", createdTrip.getCode());
+		assertEquals("Test Reef Escape", createdTrip.getName());
+		assertSame(createdTrip, testRepository.lastSavedTrip);
+		assertTrue(testRepository.existsByCode("TSTNEW20990101"));
+	}
+
+	@Test
+	void createTripThrowsWhenCodeAlreadyExists() {
+		TripCreateRequest request = createRequest();
+		request.setCode(testTrips.get(0).getCode());
+
+		assertThrows(IllegalArgumentException.class, () -> tripService.createTrip(request));
+	}
+
+	@Test
+	void updateTripUpdatesEditableFieldsWhenTripExists() {
+		TripUpdateRequest request = updateRequest();
+
+		Optional<Trip> updatedTrip = tripService.updateTrip(testTrips.get(0).getCode(), request);
+
+		assertTrue(updatedTrip.isPresent());
+		assertEquals(testTrips.get(0).getCode(), updatedTrip.get().getCode());
+		assertEquals("Updated Reef Escape", updatedTrip.get().getName());
+		assertEquals(7, updatedTrip.get().getDurationDays());
+		assertEquals("Updated Test Resort", updatedTrip.get().getResort());
+		assertSame(updatedTrip.get(), testRepository.lastSavedTrip);
+	}
+
+	@Test
+	void updateTripReturnsEmptyWhenTripDoesNotExist() {
+		Optional<Trip> updatedTrip = tripService.updateTrip("UNKTRP20990101", updateRequest());
+
+		assertTrue(updatedTrip.isEmpty());
+	}
+
+	@Test
+	void deleteTripDeletesExistingTrip() {
+		boolean deleted = tripService.deleteTrip(testTrips.get(0).getCode());
+
+		assertTrue(deleted);
+		assertEquals(testTrips.get(0).getCode(), testRepository.lastDeletedTrip.getCode());
+		assertFalse(testRepository.existsByCode(testTrips.get(0).getCode()));
+	}
+
+	@Test
+	void deleteTripReturnsFalseWhenTripDoesNotExist() {
+		boolean deleted = tripService.deleteTrip("UNKTRP20990101");
+
+		assertFalse(deleted);
+	}
+
+	private TripCreateRequest createRequest() {
+		TripCreateRequest request = new TripCreateRequest();
+		request.setCode("TSTNEW20990101");
+		request.setName("Test Reef Escape");
+		request.setDurationDays(5);
+		request.setStartDate(LocalDate.of(2099, 1, 1));
+		request.setResort("Test Resort");
+		request.setPricePerPerson(new BigDecimal("1299.99"));
+		request.setImageName("test_reef_escape.jpg");
+		request.setDescription("A test trip used to verify service create behavior.");
+
+		return request;
+	}
+
+	private TripUpdateRequest updateRequest() {
+		TripUpdateRequest request = new TripUpdateRequest();
+		request.setName("Updated Reef Escape");
+		request.setDurationDays(7);
+		request.setStartDate(LocalDate.of(2099, 2, 1));
+		request.setResort("Updated Test Resort");
+		request.setPricePerPerson(new BigDecimal("1499.99"));
+		request.setImageName("updated_reef_escape.jpg");
+		request.setDescription("A test trip used to verify service update behavior.");
+
+		return request;
+	}
+
 	/**
 	 * Simple repository implementation used only by service tests.
 	 */
+	@SuppressWarnings("null")
 	private static class TestTripRepository implements TripRepository {
 		private final List<Trip> trips;
 		private TripSearchCriteria lastCriteria;
 		private String lastLookupCode;
 		private boolean summaryRequested;
+		private Trip lastSavedTrip;
+		private Trip lastDeletedTrip;
 
-		/**
-		 * Creates a test repository backed by controlled trip data.
-		 *
-		 * @param trips trips exposed to the service under test
-		 */
 		TestTripRepository(List<Trip> trips) {
-			this.trips = trips;
+			this.trips = new ArrayList<>(trips);
 		}
 
 		@Override
@@ -181,20 +253,6 @@ class TripServiceTest {
 		}
 
 		@Override
-		public boolean existsByCode(String code) {
-			return false;
-		}
-
-		@Override
-		public Trip save(Trip trip) {
-			return trip;
-		}
-
-		@Override
-		public void delete(Trip trip) {
-		}
-
-		@Override
 		public Optional<Trip> findByCode(String code) {
 			this.lastLookupCode = code;
 
@@ -209,6 +267,28 @@ class TripServiceTest {
 			}
 
 			return Optional.empty();
+		}
+
+		@Override
+		public boolean existsByCode(String code) {
+			return findByCode(code).isPresent();
+		}
+
+		@Override
+		public Trip save(Trip trip) {
+			this.lastSavedTrip = trip;
+
+			if (!existsByCode(trip.getCode())) {
+				trips.add(trip);
+			}
+
+			return trip;
+		}
+
+		@Override
+		public void delete(Trip trip) {
+			this.lastDeletedTrip = trip;
+			trips.removeIf(existingTrip -> existingTrip.getCode().equalsIgnoreCase(trip.getCode()));
 		}
 	}
 }

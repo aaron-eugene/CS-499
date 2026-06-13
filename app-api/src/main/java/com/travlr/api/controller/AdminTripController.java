@@ -20,9 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Provides administrative trip-management endpoints.
  *
- * Public trip browsing remains in TripController. This controller separates
- * create, update, and delete operations so they can be protected by
- * authorization rules without changing the public read-only API.
+ * Public browsing routes remain separate from these write operations so create,
+ * update, and delete requests can be protected by authorization rules.
  */
 @RestController
 @RequestMapping("/api/admin/trips")

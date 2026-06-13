@@ -47,8 +47,12 @@ class AdminTripControllerSecurityTest {
 	@Test
 	void adminDeleteReachesControllerWithAuthentication() throws Exception {
 		mockMvc.perform(delete("/api/admin/trips/NOEXST20990101")
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("admin", "changeme")))
+				.header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
 				.andExpect(status().isNotFound());
+	}
+
+	private String adminAuthHeader() {
+		return basicAuthHeader("admin", "changeme");
 	}
 
 	private String basicAuthHeader(String username, String password) {

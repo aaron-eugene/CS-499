@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Handles REST API requests for trip resources.
+ * Handles public REST API requests for trip resources.
  *
- * This controller exposes the current public read-only trip API. It accepts
- * query criteria from API callers and delegates trip listing, lookup, and
- * summary requests to the service layer. Future create, update, and delete
- * endpoints should be protected with admin authorization before they are
- * exposed.
+ * This controller exposes read-only trip browsing endpoints. It accepts query
+ * criteria from API callers and delegates trip listing, lookup, and summary
+ * requests to the service layer. Administrative create, update, and delete
+ * operations are exposed separately under protected admin routes.
  */
 @RestController
 @RequestMapping("/api/trips")

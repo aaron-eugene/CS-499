@@ -16,9 +16,9 @@ import java.time.LocalDate;
 /**
  * Represents client-provided trip data for updating an existing trip.
  *
- * This DTO intentionally excludes the trip code because updates should identify
- * the target trip through the route path. This prevents callers from changing
- * the stable public trip code during a normal update operation.
+ * This DTO intentionally excludes the trip code because updates identify the
+ * target trip through the route path. This prevents callers from changing the
+ * stable public trip code during a normal update operation.
  */
 public class TripUpdateRequest {
 	@NotBlank(message = "Trip name is required.")

@@ -2,6 +2,7 @@ package com.travlr.api.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -10,8 +11,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * The allowed origin is read from application configuration so local and
  * deployed environments can use different frontend URLs without changing
- * controller source code. Public browsing routes use GET requests, while
- * protected administrative routes use write methods under /api/admin.
+ * controller source code. CORS controls which browser origins may call the API;
+ * authentication and authorization are enforced separately by Spring Security.
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -29,14 +30,15 @@ public class CorsConfig implements WebMvcConfigurer {
 	/**
 	 * Applies CORS rules to API endpoints.
 	 *
-	 * Authorization is still enforced by Spring Security. Allowing write methods
-	 * here only permits browser preflight checks and cross-origin requests from
-	 * the configured frontend origin.
+	 * Write methods are allowed for the configured frontend origin so the admin UI
+	 * can call protected create, update, and delete endpoints. Spring Security
+	 * still
+	 * enforces authentication and authorization for those requests.
 	 *
 	 * @param registry CORS registry used by Spring MVC
 	 */
 	@Override
-	public void addCorsMappings(CorsRegistry registry) {
+	public void addCorsMappings(@NonNull CorsRegistry registry) {
 		registry.addMapping("/api/**")
 				.allowedOrigins(allowedOrigin)
 				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
