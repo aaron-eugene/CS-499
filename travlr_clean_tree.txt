@@ -127,6 +127,7 @@ travlr/
 
 C:.
 |   .gitignore
+|   Milestone_2_Narrative.md
 |   README.md
 |   travlr_clean_tree.txt
 |   travlr_tree.txt
@@ -169,7 +170,6 @@ C:.
 |   |   |   |               |       Trip.java
 |   |   |   |               |       
 |   |   |   |               +---repository
-|   |   |   |               |       InMemoryTripRepository.java
 |   |   |   |               |       JpaTripRepository.java
 |   |   |   |               |       SpringDataTripRepository.java
 |   |   |   |               |       TripRepository.java
@@ -195,7 +195,6 @@ C:.
 |   |                       |   AppApiApplicationTests.java
 |   |                       |   
 |   |                       +---repository
-|   |                       |       InMemoryTripRepositoryTest.java
 |   |                       |       JpaTripRepositoryTest.java
 |   |                       |       
 |   |                       \---service
@@ -226,7 +225,6 @@ C:.
 |       |   |           |       Trip.class
 |       |   |           |       
 |       |   |           +---repository
-|       |   |           |       InMemoryTripRepository.class
 |       |   |           |       JpaTripRepository.class
 |       |   |           |       SpringDataTripRepository$TripSummaryStats.class
 |       |   |           |       SpringDataTripRepository.class
@@ -247,7 +245,6 @@ C:.
 |                       |   AppApiApplicationTests.class
 |                       |   
 |                       +---repository
-|                       |       InMemoryTripRepositoryTest.class
 |                       |       JpaTripRepositoryTest.class
 |                       |       
 |                       \---service
@@ -315,5 +312,3 @@ C:.
         \---components
                 TripCard.jsx
                 TripList.jsx
-				
-                

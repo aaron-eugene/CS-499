@@ -93,6 +93,31 @@ public class Trip {
 		this.description = description;
 	}
 
+	/**
+	 * Updates editable trip details while preserving the stable public trip code.
+	 *
+	 * The trip code is intentionally not updated here because it is used as the
+	 * public API identifier for lookup and route-based update operations.
+	 *
+	 * @param name           display name of the trip
+	 * @param durationDays   duration of the trip in days
+	 * @param startDate      starting date of the trip
+	 * @param resort         resort name
+	 * @param pricePerPerson price per person
+	 * @param imageName      controlled image filename used by the frontend
+	 * @param description    plain-text trip description for display
+	 */
+	public void updateDetails(String name, int durationDays, LocalDate startDate, String resort,
+			BigDecimal pricePerPerson, String imageName, String description) {
+		this.name = name;
+		this.durationDays = durationDays;
+		this.startDate = startDate;
+		this.resort = resort;
+		this.pricePerPerson = pricePerPerson;
+		this.imageName = imageName;
+		this.description = description;
+	}
+
 	public Long getId() {
 		return id;
 	}

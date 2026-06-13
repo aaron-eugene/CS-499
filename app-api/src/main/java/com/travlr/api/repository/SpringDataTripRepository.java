@@ -28,6 +28,15 @@ interface SpringDataTripRepository extends JpaRepository<Trip, Long>, JpaSpecifi
 	Optional<Trip> findByCodeIgnoreCase(String code);
 
 	/**
+	 * Checks whether a trip exists by public trip code without requiring an exact
+	 * case match.
+	 *
+	 * @param code trip code to check
+	 * @return true if a matching trip exists; otherwise false
+	 */
+	boolean existsByCodeIgnoreCase(String code);
+
+	/**
 	 * Retrieves aggregate summary values from the trip catalog.
 	 *
 	 * @return summary projection containing catalog aggregate values

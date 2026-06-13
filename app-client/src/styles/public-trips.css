@@ -1,73 +1,3 @@
-.app-shell {
-	min-height: 100vh;
-	background:
-		url("/images/bg-pattern.jpg") repeat-x center top,
-		#ffb744 url("/images/bg-body.jpg") repeat left bottom;
-	color: #5a4535;
-	font-family: "Times New Roman", Times, serif;
-	padding: 32px 20px;
-}
-
-.site-header {
-	margin: 0 auto 28px;
-	max-width: 960px;
-	padding-top: 18px;
-}
-
-.site-header__inner {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
-}
-
-.site-logo {
-	align-self: flex-start;
-	height: auto;
-	margin-left: 45px;
-	width: 170px;
-}
-
-.site-nav {
-	background: linear-gradient(#4eb7ad, #2c9688);
-	border: 1px solid rgba(255, 255, 255, 0.25);
-	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	max-width: 860px;
-	width: 100%;
-}
-
-.site-nav button {
-	background: transparent;
-	border: 0;
-	border-left: 1px solid rgba(255, 255, 255, 0.18);
-	color: #fff;
-	cursor: pointer;
-	display: block;
-	font: bold 14px/48px Arial, Helvetica, sans-serif;
-	height: 48px;
-	padding: 0;
-	text-align: center;
-	text-decoration: none;
-	text-transform: uppercase;
-}
-
-.site-nav button:first-child {
-	border-left: 0;
-}
-
-.site-nav button:hover,
-.site-nav button:focus-visible,
-.site-nav__active {
-	background: linear-gradient(#8a7a6f, #6d6157);
-	color: #eee7c3;
-}
-
-.site-nav button:focus-visible {
-	outline: 2px solid #eee7c3;
-	outline-offset: -4px;
-}
-
 .page-intro {
 	margin: 0 auto 24px;
 	max-width: 860px;
@@ -216,22 +146,11 @@
 	padding: 6px 10px;
 }
 
-.status-message {
-	background: #eee7c3;
-	border: 1px solid #9c8964;
-	color: #5a4535;
-	margin: 0 auto;
-	max-width: 860px;
-	padding: 16px 20px;
-	text-align: center;
-}
-
-.status-message--error {
-	border-color: #8a2f2f;
-	color: #8a2f2f;
-}
-
 @media (max-width: 700px) {
+	.page-intro h1 {
+		font-size: 30px;
+	}
+
 	.trip-card {
 		grid-template-columns: 1fr;
 	}
@@ -242,23 +161,5 @@
 
 	.trip-card__details {
 		justify-content: center;
-	}
-
-	.site-logo {
-		align-self: center;
-		margin-left: 0;
-	}
-
-	.site-nav {
-		grid-template-columns: 1fr;
-	}
-
-	.site-nav button {
-		border-left: 0;
-		border-top: 1px solid rgba(255, 255, 255, 0.18);
-	}
-
-	.page-intro h1 {
-		font-size: 30px;
 	}
 }

@@ -4,6 +4,8 @@ import com.travlr.api.dto.TripSearchCriteria;
 import com.travlr.api.dto.TripSummary;
 import com.travlr.api.model.Trip;
 
+import org.springframework.lang.NonNull;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +13,8 @@ import java.util.Optional;
  * Defines application-level persistence operations for trip records.
  *
  * This interface separates trip service logic from the storage mechanism. The
- * default implementation uses PostgreSQL-backed persistence, while the memory
- * profile can still provide an in-memory fallback implementation.
+ * default implementation uses PostgreSQL-backed persistence through Spring Data
+ * JPA.
  */
 public interface TripRepository {
 	/**
@@ -48,4 +50,27 @@ public interface TripRepository {
 	 * @return matching trip, if found
 	 */
 	Optional<Trip> findByCode(String code);
+
+	/**
+	 * Checks whether a trip exists with the given public trip code.
+	 *
+	 * @param code trip code to check
+	 * @return true if a matching trip exists; otherwise false
+	 */
+	boolean existsByCode(String code);
+
+	/**
+	 * Saves a trip record.
+	 *
+	 * @param trip trip to save
+	 * @return saved trip
+	 */
+	Trip save(@NonNull Trip trip);
+
+	/**
+	 * Deletes a trip record.
+	 *
+	 * @param trip trip to delete
+	 */
+	void delete(@NonNull Trip trip);
 }

@@ -4,11 +4,11 @@ import com.travlr.api.dto.TripSearchCriteria;
 import com.travlr.api.dto.TripSummary;
 import com.travlr.api.model.Trip;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.criteria.Predicate;
@@ -27,7 +27,6 @@ import java.util.TreeSet;
  * Data JPA.
  */
 @Repository
-@Profile("!memory")
 public class JpaTripRepository implements TripRepository {
 	private static final int DEFAULT_PAGE = 0;
 	private static final int DEFAULT_SIZE = 10;
@@ -62,9 +61,8 @@ public class JpaTripRepository implements TripRepository {
 	/**
 	 * Computes catalog summary metadata through database-backed aggregate queries.
 	 *
-	 * Numeric summary values are calculated by PostgreSQL, and distinct resort
-	 * values are retrieved from the database before being sorted for a stable API
-	 * response.
+	 * Numeric summary values are calculated by the database, and distinct resort
+	 * values are retrieved before being sorted for a stable API response.
 	 *
 	 * @return summary values for the trip catalog
 	 */
@@ -101,12 +99,33 @@ public class JpaTripRepository implements TripRepository {
 		return springDataTripRepository.findByCodeIgnoreCase(code.trim());
 	}
 
+	@Override
+	public boolean existsByCode(String code) {
+		if (code == null || code.isBlank()) {
+			return false;
+		}
+
+		return springDataTripRepository.existsByCodeIgnoreCase(code.trim());
+	}
+
+	@Override
+	@NonNull
+	public Trip save(@NonNull Trip trip) {
+		return springDataTripRepository.save(trip);
+	}
+
+	@Override
+	public void delete(@NonNull Trip trip) {
+		springDataTripRepository.delete(trip);
+	}
+
 	/**
 	 * Builds the database query filters for trip search criteria.
 	 *
 	 * @param criteria search and filter criteria
 	 * @return JPA specification for matching trips
 	 */
+	@NonNull
 	private Specification<Trip> buildSpecification(TripSearchCriteria criteria) {
 		return (root, query, criteriaBuilder) -> {
 			List<Predicate> predicates = new ArrayList<>();
@@ -172,6 +191,7 @@ public class JpaTripRepository implements TripRepository {
 	 * @param criteria query criteria supplied by the API layer
 	 * @return pageable request for Spring Data JPA
 	 */
+	@NonNull
 	private Pageable buildPageable(TripSearchCriteria criteria) {
 		int page = criteria.getPage() == null || criteria.getPage() < 0
 				? DEFAULT_PAGE
@@ -194,6 +214,7 @@ public class JpaTripRepository implements TripRepository {
 	 * @param direction requested direction
 	 * @return approved sort
 	 */
+	@NonNull
 	private Sort buildSort(String sort, String direction) {
 		Sort.Direction sortDirection = "desc".equals(normalize(direction))
 				? Sort.Direction.DESC

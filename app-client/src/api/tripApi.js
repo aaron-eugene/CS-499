@@ -1,6 +1,52 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 /**
+ * Builds an HTTP Basic Authorization header value.
+ *
+ * Credentials are kept by the React component and passed only when an admin
+ * request is made. They are not stored in localStorage.
+ *
+ * @param {string} username admin username
+ * @param {string} password admin password
+ * @returns {string} Basic authorization header value
+ */
+function buildBasicAuthHeader(username, password) {
+	return `Basic ${btoa(`${username}:${password}`)}`;
+}
+
+/**
+ * Sends a JSON request to a protected admin endpoint.
+ *
+ * @param {string} path admin API path
+ * @param {Object} options request options
+ * @param {string} options.method HTTP method
+ * @param {Object} [options.body] optional request body
+ * @param {string} options.username admin username
+ * @param {string} options.password admin password
+ * @returns {Promise<Object|null>} parsed response body or null for empty responses
+ */
+async function sendAdminRequest(path, { method, body, username, password }) {
+	const response = await fetch(`${API_BASE_URL}${path}`, {
+		method,
+		headers: {
+			Authorization: buildBasicAuthHeader(username, password),
+			'Content-Type': 'application/json',
+		},
+		body: body ? JSON.stringify(body) : undefined,
+	});
+
+	if (!response.ok) {
+		throw new Error(`Admin request failed. Status: ${response.status}`);
+	}
+
+	if (response.status === 204) {
+		return null;
+	}
+
+	return response.json();
+}
+
+/**
  * Retrieves trips from the backend API.
  *
  * @param {Object} options optional query settings
@@ -29,4 +75,55 @@ export async function getTrips({ sort = '', maxPrice = '' } = {}) {
 	}
 
 	return response.json();
+}
+
+/**
+ * Creates a new trip through the protected admin API.
+ *
+ * @param {Object} trip trip create request
+ * @param {Object} credentials admin credentials
+ * @param {string} credentials.username admin username
+ * @param {string} credentials.password admin password
+ * @returns {Promise<Object>} created trip
+ */
+export async function createTrip(trip, credentials) {
+	return sendAdminRequest('/api/admin/trips', {
+		method: 'POST',
+		body: trip,
+		...credentials,
+	});
+}
+
+/**
+ * Updates an existing trip through the protected admin API.
+ *
+ * @param {string} code stable public trip code
+ * @param {Object} trip trip update request
+ * @param {Object} credentials admin credentials
+ * @param {string} credentials.username admin username
+ * @param {string} credentials.password admin password
+ * @returns {Promise<Object>} updated trip
+ */
+export async function updateTrip(code, trip, credentials) {
+	return sendAdminRequest(`/api/admin/trips/${encodeURIComponent(code)}`, {
+		method: 'PUT',
+		body: trip,
+		...credentials,
+	});
+}
+
+/**
+ * Deletes an existing trip through the protected admin API.
+ *
+ * @param {string} code stable public trip code
+ * @param {Object} credentials admin credentials
+ * @param {string} credentials.username admin username
+ * @param {string} credentials.password admin password
+ * @returns {Promise<null>} empty response
+ */
+export async function deleteTrip(code, credentials) {
+	return sendAdminRequest(`/api/admin/trips/${encodeURIComponent(code)}`, {
+		method: 'DELETE',
+		...credentials,
+	});
 }

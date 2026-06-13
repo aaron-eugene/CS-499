@@ -14,15 +14,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Represents client-provided trip data for future write operations.
+ * Represents client-provided trip data for creating a new trip.
  *
- * This DTO separates incoming request data from the persistent Trip entity so
- * validation can be applied at the API boundary before data reaches the service
- * or repository layers. As create and update endpoints are added, separate
- * request DTOs may be introduced so route identifiers remain separate from
- * editable request body fields.
+ * This DTO separates incoming create-request data from the persistent Trip
+ * entity so validation can be applied at the API boundary before data reaches
+ * the service or repository layers. The trip code is included here because new
+ * trip records need a stable public identifier.
  */
-public class TripRequest {
+public class TripCreateRequest {
 	@NotBlank(message = "Trip code is required.")
 	@Size(min = 14, max = 14, message = "Trip code must be exactly 14 characters.")
 	@Pattern(regexp = "^[A-Z]{6}\\d{8}$", message = "Trip code must use six uppercase letters followed by an eight-digit date.")
