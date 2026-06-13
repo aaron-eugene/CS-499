@@ -142,10 +142,6 @@ function App() {
         <>
           <section className="page-intro">
             <h1>Explore Available Trips</h1>
-            <p>
-              This React client retrieves typed trip data from the enhanced
-              Spring Boot API and displays it through reusable components.
-            </p>
           </section>
 
           <section className="trip-controls" aria-label="Trip filters">

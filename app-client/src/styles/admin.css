@@ -15,7 +15,7 @@
 	display: flex;
 	gap: 20px;
 	justify-content: space-between;
-	margin-bottom: 24px;
+	margin-bottom: 20px;
 }
 
 .admin-kicker {
@@ -58,16 +58,34 @@
 }
 
 .admin-credentials {
+	align-items: center;
 	background: #fff9df;
 	border: 1px solid #c7b783;
 	display: grid;
-	gap: 16px;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	margin-bottom: 20px;
-	padding: 16px;
+	gap: 12px;
+	grid-template-columns: auto minmax(150px, 1fr) minmax(150px, 1fr);
+	margin-bottom: 18px;
+	padding: 10px 14px;
 }
 
-.admin-credentials label,
+.admin-credentials__label {
+	color: #316e66;
+	font-size: 12px;
+	font-weight: bold;
+	letter-spacing: 0.04em;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.admin-credentials label {
+	align-items: center;
+	color: #2d2a24;
+	display: grid;
+	font-size: 12px;
+	gap: 6px;
+	grid-template-columns: auto 1fr;
+}
+
 .admin-form label {
 	color: #2d2a24;
 	display: flex;
@@ -78,6 +96,7 @@
 
 .admin-credentials input,
 .admin-form input,
+.admin-form select,
 .admin-form textarea {
 	background: #fff;
 	border: 1px solid #b9aa78;
@@ -87,8 +106,14 @@
 	padding: 8px 10px;
 }
 
+.admin-credentials input {
+	min-width: 0;
+	padding: 6px 8px;
+}
+
 .admin-credentials input:focus,
 .admin-form input:focus,
+.admin-form select:focus,
 .admin-form textarea:focus {
 	border-color: #2c9688;
 	outline: 2px solid rgba(44, 150, 136, 0.28);
@@ -257,6 +282,12 @@
 	}
 
 	.admin-credentials {
+		align-items: stretch;
+		grid-template-columns: 1fr;
+	}
+
+	.admin-credentials label {
+		align-items: stretch;
 		grid-template-columns: 1fr;
 	}
 

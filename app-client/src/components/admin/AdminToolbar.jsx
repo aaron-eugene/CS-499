@@ -9,17 +9,14 @@
 function AdminToolbar({ onBackToTravel, onLogout }) {
 	return (
 		<div className="admin-toolbar">
-			<div>
-				<p className="admin-kicker">Trips (admin)</p>
-				<h1>Admin Trip Management</h1>
-			</div>
+			<h1>Admin Trip Management</h1>
 
 			<div className="admin-toolbar__actions">
 				<button type="button" onClick={onBackToTravel}>
 					Back to Travel
 				</button>
 				<button type="button" onClick={onLogout}>
-					Log Out
+					Clear Credentials
 				</button>
 			</div>
 		</div>

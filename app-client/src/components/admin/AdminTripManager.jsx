@@ -30,7 +30,7 @@ const EMPTY_FORM = {
  * @returns {JSX.Element} rendered admin manager
  */
 function AdminTripManager({ trips, onTripsChanged, onBackToTravel }) {
-	const [username, setUsername] = useState('admin');
+	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [mode, setMode] = useState('list');
 	const [selectedCode, setSelectedCode] = useState('');
@@ -86,6 +86,7 @@ function AdminTripManager({ trips, onTripsChanged, onBackToTravel }) {
 	}
 
 	function handleLogout() {
+		setUsername('');
 		setPassword('');
 		setMode('list');
 		setSelectedCode('');

@@ -1,5 +1,5 @@
 /**
- * Displays admin Basic Auth credential inputs.
+ * Displays compact admin Basic Auth credential inputs.
  *
  * @param {Object} props component properties
  * @param {string} props.username admin username
@@ -17,7 +17,7 @@ function AdminCredentials({
 	return (
 		<section className="admin-credentials" aria-label="Admin credentials">
 			<label>
-				Username
+				<span>Username</span>
 				<input
 					type="text"
 					value={username}
@@ -26,7 +26,7 @@ function AdminCredentials({
 			</label>
 
 			<label>
-				Password
+				<span>Password</span>
 				<input
 					type="password"
 					value={password}
