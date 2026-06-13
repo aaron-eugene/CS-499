@@ -15,7 +15,8 @@ import './styles/index.css';
  */
 function App() {
   const [view, setView] = useState('public');
-  const [trips, setTrips] = useState([]);
+  const [publicTrips, setPublicTrips] = useState([]);
+  const [adminTrips, setAdminTrips] = useState([]);
   const [sort, setSort] = useState('name');
   const [maxPrice, setMaxPrice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -34,12 +35,9 @@ function App() {
   }, []);
 
   /**
-   * Loads trips from the backend API and ignores stale responses.
-   *
-   * This function is reused by the public browsing view and the admin manager
-   * after create, update, or delete operations.
+   * Loads filtered trips for the public browsing page.
    */
-  const loadTrips = useCallback(async () => {
+  const loadPublicTrips = useCallback(async () => {
     const requestId = latestRequestId.current + 1;
     latestRequestId.current = requestId;
 
@@ -50,12 +48,12 @@ function App() {
       const tripData = await getTrips({ sort, maxPrice });
 
       if (isMounted.current && latestRequestId.current === requestId) {
-        setTrips(tripData);
+        setPublicTrips(tripData);
       }
     } catch (error) {
       if (isMounted.current && latestRequestId.current === requestId) {
         setErrorMessage(error.message);
-        setTrips([]);
+        setPublicTrips([]);
       }
     } finally {
       if (isMounted.current && latestRequestId.current === requestId) {
@@ -64,9 +62,40 @@ function App() {
     }
   }, [sort, maxPrice]);
 
+  /**
+   * Loads the full trip catalog for admin management.
+   */
+  const loadAdminTrips = useCallback(async () => {
+    try {
+      const tripData = await getTrips({ sort: 'name' });
+
+      if (isMounted.current) {
+        setAdminTrips(tripData);
+      }
+    } catch (error) {
+      if (isMounted.current) {
+        setAdminTrips([]);
+      }
+    }
+  }, []);
+
+  /**
+   * Refreshes both public and admin trip data after an admin change.
+   */
+  async function handleTripsChanged() {
+    await Promise.all([
+      loadPublicTrips(),
+      loadAdminTrips(),
+    ]);
+  }
+
   useEffect(() => {
-    loadTrips();
-  }, [loadTrips]);
+    loadPublicTrips();
+  }, [loadPublicTrips]);
+
+  useEffect(() => {
+    loadAdminTrips();
+  }, [loadAdminTrips]);
 
   return (
     <main className="app-shell">
@@ -154,14 +183,14 @@ function App() {
             </p>
           )}
 
-          {!isLoading && !errorMessage && <TripList trips={trips} />}
+          {!isLoading && !errorMessage && <TripList trips={publicTrips} />}
         </>
       )}
 
       {view === 'admin' && (
         <AdminTripManager
-          trips={trips}
-          onTripsChanged={loadTrips}
+          trips={adminTrips}
+          onTripsChanged={handleTripsChanged}
           onBackToTravel={() => setView('public')}
         />
       )}
