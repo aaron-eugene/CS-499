@@ -1,71 +1,102 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getTrips } from './api/tripApi';
+import AdminTripManager from './components/admin/AdminTripManager';
 import TripList from './components/TripList';
 import './App.css';
 
 /**
  * Main application component for the enhanced Travlr client.
  *
- * This component retrieves trip data from the Spring Boot API and displays
- * loading, error, empty, and successful data states.
+ * This component retrieves trip data from the Spring Boot API, displays the
+ * public trip-browsing experience, and switches to a separate admin management
+ * view when requested.
  *
  * @returns {JSX.Element} rendered application
  */
 function App() {
+  const [view, setView] = useState('public');
   const [trips, setTrips] = useState([]);
   const [sort, setSort] = useState('name');
   const [maxPrice, setMaxPrice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const isMounted = useRef(false);
+  const latestRequestId = useRef(0);
+
   useEffect(() => {
-    let isCurrentRequest = true;
-
-    async function loadTrips() {
-      try {
-        setIsLoading(true);
-        setErrorMessage('');
-
-        const tripData = await getTrips({ sort, maxPrice });
-
-        if (isCurrentRequest) {
-          setTrips(tripData);
-        }
-      } catch (error) {
-        if (isCurrentRequest) {
-          setErrorMessage(error.message);
-          setTrips([]);
-        }
-      } finally {
-        if (isCurrentRequest) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadTrips();
+    isMounted.current = true;
 
     return () => {
-      isCurrentRequest = false;
+      isMounted.current = false;
+      latestRequestId.current += 1;
     };
+  }, []);
+
+  /**
+   * Loads trips from the backend API and ignores stale responses.
+   *
+   * This function is reused by the public browsing view and the admin manager
+   * after create, update, or delete operations.
+   */
+  const loadTrips = useCallback(async () => {
+    const requestId = latestRequestId.current + 1;
+    latestRequestId.current = requestId;
+
+    try {
+      setIsLoading(true);
+      setErrorMessage('');
+
+      const tripData = await getTrips({ sort, maxPrice });
+
+      if (isMounted.current && latestRequestId.current === requestId) {
+        setTrips(tripData);
+      }
+    } catch (error) {
+      if (isMounted.current && latestRequestId.current === requestId) {
+        setErrorMessage(error.message);
+        setTrips([]);
+      }
+    } finally {
+      if (isMounted.current && latestRequestId.current === requestId) {
+        setIsLoading(false);
+      }
+    }
   }, [sort, maxPrice]);
+
+  useEffect(() => {
+    loadTrips();
+  }, [loadTrips]);
 
   return (
     <main className="app-shell">
       <header className="site-header">
         <div className="site-header__inner">
-          <img
-            className="site-logo"
-            src="/images/logo.png"
-            alt="Travlr Getaways"
-          />
+          <div className="site-header__top">
+            <img
+              className="site-logo"
+              src="/images/logo.png"
+              alt="Travlr Getaways"
+            />
 
-          <nav className="site-nav" aria-label="Primary navigation">
-            <button type="button">Home</button>
             <button
               type="button"
-              className="site-nav__active"
-              aria-current="page"
+              className="admin-link-button"
+              onClick={() => setView('admin')}
+            >
+              Admin
+            </button>
+          </div>
+
+          <nav className="site-nav" aria-label="Primary navigation">
+            <button type="button" onClick={() => setView('public')}>
+              Home
+            </button>
+            <button
+              type="button"
+              className={view === 'public' ? 'site-nav__active' : ''}
+              aria-current={view === 'public' ? 'page' : undefined}
+              onClick={() => setView('public')}
             >
               Travel
             </button>
@@ -78,47 +109,62 @@ function App() {
         </div>
       </header>
 
-      <section className="page-intro">
-        <h1>Explore Available Trips</h1>
-        <p>
-          This React client retrieves typed trip data from the enhanced Spring Boot
-          API and displays it through reusable components.
-        </p>
-      </section>
+      {view === 'public' && (
+        <>
+          <section className="page-intro">
+            <h1>Explore Available Trips</h1>
+            <p>
+              This React client retrieves typed trip data from the enhanced
+              Spring Boot API and displays it through reusable components.
+            </p>
+          </section>
 
-      <section className="trip-controls" aria-label="Trip filters">
-        <label>
-          Sort by
-          <select value={sort} onChange={(event) => setSort(event.target.value)}>
-            <option value="name">Name</option>
-            <option value="price">Price</option>
-            <option value="startDate">Start date</option>
-            <option value="duration">Duration</option>
-          </select>
-        </label>
+          <section className="trip-controls" aria-label="Trip filters">
+            <label>
+              Sort by
+              <select
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                <option value="name">Name</option>
+                <option value="price">Price</option>
+                <option value="startDate">Start date</option>
+                <option value="duration">Duration</option>
+              </select>
+            </label>
 
-        <label>
-          Max price
-          <input
-            type="number"
-            min="0"
-            step="50"
-            value={maxPrice}
-            placeholder="No limit"
-            onChange={(event) => setMaxPrice(event.target.value)}
-          />
-        </label>
-      </section>
+            <label>
+              Max price
+              <input
+                type="number"
+                min="0"
+                step="50"
+                value={maxPrice}
+                placeholder="No limit"
+                onChange={(event) => setMaxPrice(event.target.value)}
+              />
+            </label>
+          </section>
 
-      {isLoading && <p className="status-message">Loading trips...</p>}
+          {isLoading && <p className="status-message">Loading trips...</p>}
 
-      {errorMessage && (
-        <p className="status-message status-message--error">
-          {errorMessage}
-        </p>
+          {errorMessage && (
+            <p className="status-message status-message--error">
+              {errorMessage}
+            </p>
+          )}
+
+          {!isLoading && !errorMessage && <TripList trips={trips} />}
+        </>
       )}
 
-      {!isLoading && !errorMessage && <TripList trips={trips} />}
+      {view === 'admin' && (
+        <AdminTripManager
+          trips={trips}
+          onTripsChanged={loadTrips}
+          onBackToTravel={() => setView('public')}
+        />
+      )}
     </main>
   );
 }

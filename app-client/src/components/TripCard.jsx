@@ -8,9 +8,9 @@
 function TripCard({ trip }) {
 	return (
 		<article className="trip-card">
-            <div className="trip-card__image">
-                <img src={`/images/${trip.imageName}`} alt={trip.name} />
-            </div>
+			<div className="trip-card__image">
+				<img src={`/images/${trip.imageName}`} alt={trip.name} />
+			</div>
 
 			<div className="trip-card__content">
 				<p className="trip-card__code">{trip.code}</p>
