@@ -32,8 +32,7 @@ public class CorsConfig implements WebMvcConfigurer {
 	 *
 	 * Write methods are allowed for the configured frontend origin so the admin UI
 	 * can call protected create, update, and delete endpoints. Spring Security
-	 * still
-	 * enforces authentication and authorization for those requests.
+	 * still enforces authentication and authorization for those requests.
 	 *
 	 * @param registry CORS registry used by Spring MVC
 	 */

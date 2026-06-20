@@ -20,7 +20,9 @@ function AdminCredentials({
 				<span>Username</span>
 				<input
 					type="text"
+					name="travlrAdminUsername"
 					value={username}
+					autoComplete="off"
 					onChange={(event) => onUsernameChange(event.target.value)}
 				/>
 			</label>
@@ -29,8 +31,10 @@ function AdminCredentials({
 				<span>Password</span>
 				<input
 					type="password"
+					name="travlrAdminPassword"
 					value={password}
 					placeholder="changeme"
+					autoComplete="new-password"
 					onChange={(event) => onPasswordChange(event.target.value)}
 				/>
 			</label>

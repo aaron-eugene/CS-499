@@ -26,17 +26,23 @@ function buildBasicAuthHeader(username, password) {
  * @returns {Promise<Object|null>} parsed response body or null for empty responses
  */
 async function sendAdminRequest(path, { method, body, username, password }) {
-	const response = await fetch(`${API_BASE_URL}${path}`, {
-		method,
-		headers: {
-			Authorization: buildBasicAuthHeader(username, password),
-			'Content-Type': 'application/json',
-		},
-		body: body ? JSON.stringify(body) : undefined,
-	});
+	let response;
+
+	try {
+		response = await fetch(`${API_BASE_URL}${path}`, {
+			method,
+			headers: {
+				Authorization: buildBasicAuthHeader(username, password),
+				'Content-Type': 'application/json',
+			},
+			body: body ? JSON.stringify(body) : undefined,
+		});
+	} catch (error) {
+		throw new Error('Unable to reach the admin API. Confirm that the backend is running and CORS is configured.');
+	}
 
 	if (!response.ok) {
-		throw new Error(`Admin request failed. Status: ${response.status}`);
+		throw new Error(getAdminErrorMessage(response.status));
 	}
 
 	if (response.status === 204) {
@@ -44,6 +50,29 @@ async function sendAdminRequest(path, { method, body, username, password }) {
 	}
 
 	return response.json();
+}
+
+/**
+ * Converts protected admin response codes into user-safe error messages.
+ *
+ * @param {number} status HTTP response status
+ * @returns {string} admin error message
+ */
+function getAdminErrorMessage(status) {
+	switch (status) {
+		case 400:
+			return 'Trip information did not pass validation. Check the form fields and try again.';
+		case 401:
+			return 'Admin credentials were not accepted.';
+		case 403:
+			return 'You are not authorized to perform this admin action.';
+		case 404:
+			return 'The selected trip was not found.';
+		case 409:
+			return 'A trip with this code already exists.';
+		default:
+			return `Admin request failed. Status: ${status}`;;
+	}
 }
 
 /**
